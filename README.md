@@ -1,6 +1,6 @@
-# my_flutter_labs
+# cst2335 group project
 
-A new Flutter project.
+Group project.
 
 ## Getting Started
 

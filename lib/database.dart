@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
-import 'items_dao.dart';
-import 'item.dart';
+import 'SalesList/items_dao.dart';
+import 'SalesList/item.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
