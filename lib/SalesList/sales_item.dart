@@ -1,7 +1,7 @@
 import 'package:floor/floor.dart';
 
 @entity
-class Item {
+class SalesItem {
   static int ID = 1;
 
   @primaryKey
@@ -9,5 +9,5 @@ class Item {
   final String name;
   final int quantity;
 
-  Item(this.id, this.name, this.quantity);
+  SalesItem(this.id, this.name, this.quantity);
 }

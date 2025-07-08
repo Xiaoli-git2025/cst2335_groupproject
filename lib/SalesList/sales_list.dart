@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'item.dart';
-import 'items_dao.dart';
+import 'sales_item.dart';
+import 'sales_items_dao.dart';
 import '../database.dart';
 import '../database_provider.dart';
 
@@ -36,9 +36,9 @@ class ListPage extends StatefulWidget {
 }
 
 class _ListPageState extends State<ListPage> {
-  late final ItemsDao _itemsDao;
-  List<Item> _items = [];
-  Item? _selectedItem;
+  late final SalesItemsDao _itemsDao;
+  List<SalesItem> _items = [];
+  SalesItem? _selectedItem;
 
   late TextEditingController _itemController = TextEditingController();
   late TextEditingController _quantityController = TextEditingController();
@@ -50,7 +50,7 @@ class _ListPageState extends State<ListPage> {
     //_itemController = TextEditingController();
     //_quantityController = TextEditingController();
     super.initState();
-    _itemsDao = widget.database.itemsDao;
+    _itemsDao = widget.database.salesItemsDao;
     _loadItems();
   }
 
@@ -69,7 +69,7 @@ class _ListPageState extends State<ListPage> {
     String quantity = _quantityController.text.trim();
 
     if (item.isNotEmpty && quantity.isNotEmpty) {
-      final newItem = Item(id, item, int.tryParse(quantity) ?? 1);
+      final newItem = SalesItem(id, item, int.tryParse(quantity) ?? 1);
       await _itemsDao.insertItem(newItem);
       _itemController.clear();
       _quantityController.clear();
@@ -77,7 +77,7 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
-  Future<void> _confirmDelete(Item item) async {
+  Future<void> _confirmDelete(SalesItem item) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -106,7 +106,7 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
-  void _selectItem(Item item) {
+  void _selectItem(SalesItem item) {
     setState(() {
       _selectedItem = item;
     });
@@ -230,7 +230,7 @@ class _ListPageState extends State<ListPage> {
 }
 
 class DetailsPage extends StatelessWidget {
-  final Item item;
+  final SalesItem item;
   final VoidCallback onDelete;
   final VoidCallback onClose;
 

@@ -72,7 +72,7 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
-  ItemsDao? _itemsDaoInstance;
+  SalesItemsDao? _salesItemsDaoInstance;
 
   Future<sqflite.Database> open(
     String path,
@@ -105,20 +105,20 @@ class _$AppDatabase extends AppDatabase {
   }
 
   @override
-  ItemsDao get itemsDao {
-    return _itemsDaoInstance ??= _$ItemsDao(database, changeListener);
+  SalesItemsDao get salesItemsDao {
+    return _salesItemsDaoInstance ??= _$SalesItemsDao(database, changeListener);
   }
 }
 
-class _$ItemsDao extends ItemsDao {
-  _$ItemsDao(
+class _$SalesItemsDao extends SalesItemsDao {
+  _$SalesItemsDao(
     this.database,
     this.changeListener,
   )   : _queryAdapter = QueryAdapter(database),
         _itemInsertionAdapter = InsertionAdapter(
             database,
             'Item',
-            (Item item) => <String, Object?>{
+            (SalesItem item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
                   'quantity': item.quantity
@@ -127,7 +127,7 @@ class _$ItemsDao extends ItemsDao {
             database,
             'Item',
             ['id'],
-            (Item item) => <String, Object?>{
+            (SalesItem item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
                   'quantity': item.quantity
@@ -139,24 +139,24 @@ class _$ItemsDao extends ItemsDao {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<Item> _itemInsertionAdapter;
+  final InsertionAdapter<SalesItem> _itemInsertionAdapter;
 
-  final DeletionAdapter<Item> _itemDeletionAdapter;
+  final DeletionAdapter<SalesItem> _itemDeletionAdapter;
 
   @override
-  Future<List<Item>> findAllItems() async {
+  Future<List<SalesItem>> findAllItems() async {
     return _queryAdapter.queryList('SELECT * FROM Item',
-        mapper: (Map<String, Object?> row) => Item(
+        mapper: (Map<String, Object?> row) => SalesItem(
             row['id'] as int, row['name'] as String, row['quantity'] as int));
   }
 
   @override
-  Future<void> insertItem(Item item) async {
+  Future<void> insertItem(SalesItem item) async {
     await _itemInsertionAdapter.insert(item, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> deleteItem(Item item) async {
+  Future<void> deleteItem(SalesItem item) async {
     await _itemDeletionAdapter.delete(item);
   }
 }
