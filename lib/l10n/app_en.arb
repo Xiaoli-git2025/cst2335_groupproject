@@ -1,0 +1,28 @@
+{
+    "@@locale": "en",
+    "main_title": "Vehicle Sales Management",
+    "main_lab_customer_list": "Customer List",
+    "main_lab_car_list": "Car List",
+    "main_lab_dealership_list": "Car Dealership List",
+    "main_lab_sales_list": "Sales List",
+    "yes": "Yes",
+    "no": "No",
+    "menu_help": "Instructions",
+
+    "title_sales": "Sales List",
+    "title_sales_items": "Item Details",
+    "msg_sales_no_item": "There are no items in the list.",
+    "msg_sales_add": "Add Sales Item",
+    "msg_sales_add_choice": "Do you want to copy the previous item's data?",
+    "title_sales_delete": "Delete Item",
+    "msg_sales_delete_confirm": "Are you sure you want to delete this item?",
+    "lbl_sales_customer_id": "Customer ID",
+    "lbl_sales_car_id": "Car ID",
+    "lbl_sales_dealership_id": "Dealership ID",
+    "lbl_sales_purchase_date": "Purchase Date",
+    "lbl_sales_id": "Record ID",
+    "lbl_sales_delete": "Delete",
+    "lbl_sales_close": "Close",
+    "title_sales_help": "How to Use",
+    "msg_sales_help_description": "1. Enter customer, car, dealership, and date information.\n2. Tap 'Add' to save the sale.\n3. Tap a list item to view details or delete it.\n4. Use the back button to return to the main menu."
+}

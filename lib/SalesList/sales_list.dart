@@ -4,6 +4,7 @@ import 'sales_items_dao.dart';
 import '../database.dart';
 import '../database_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SalesListPage extends StatelessWidget {
   @override
@@ -47,7 +48,7 @@ class _ListPageState extends State<ListPage> {
         // Show SnackBar AFTER frame builds
         WidgetsBinding.instance.addPostFrameCallback((_) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("There are no items in the list.")),
+            SnackBar(content: Text(AppLocalizations.of(context)!.msg_sales_no_item),),
           );
         });
       }
@@ -62,8 +63,8 @@ class _ListPageState extends State<ListPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Add Sales Item"),
-        content: Text("Do you want to copy the previous item's data?"),
+        title: Text(AppLocalizations.of(context)!.msg_sales_add),
+        content: Text(AppLocalizations.of(context)!.msg_sales_add_choice),
         actions: [
           TextButton(
             onPressed: () {
@@ -73,7 +74,7 @@ class _ListPageState extends State<ListPage> {
               _dateController.text = lastDate ?? '';
               Navigator.pop(context);
             },
-            child: Text("Copy Previous"),
+            child: Text(AppLocalizations.of(context)!.yes),
           ),
           TextButton(
             onPressed: () {
@@ -83,7 +84,7 @@ class _ListPageState extends State<ListPage> {
               _dateController.clear();
               Navigator.pop(context);
             },
-            child: Text("Start Fresh"),
+            child: Text(AppLocalizations.of(context)!.no),
           ),
         ],
       ),
@@ -124,15 +125,15 @@ class _ListPageState extends State<ListPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Delete Item"),
-          content: Text("Are you sure you want to delete this item?"),
+          title: Text(AppLocalizations.of(context)!.title_sales_delete),
+          content: Text(AppLocalizations.of(context)!.msg_sales_delete_confirm),
           actions: [
             TextButton(
-              child: Text("No"),
+              child: Text(AppLocalizations.of(context)!.no),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             TextButton(
-              child: Text("Yes"),
+              child: Text(AppLocalizations.of(context)!.yes),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -192,7 +193,7 @@ class _ListPageState extends State<ListPage> {
                   child: TextField(
                     controller: _customerController,
                     decoration: InputDecoration(
-                      labelText: 'Customer ID',
+                      labelText: AppLocalizations.of(context)!.lbl_sales_customer_id,
                       prefixIcon: Icon(Icons.person),
                       border: OutlineInputBorder(),
                     ),
@@ -205,7 +206,7 @@ class _ListPageState extends State<ListPage> {
                   child: TextField(
                     controller: _carController,
                     decoration: InputDecoration(
-                      labelText: 'Car ID',
+                      labelText: AppLocalizations.of(context)!.lbl_sales_car_id,
                       prefixIcon: Icon(Icons.directions_car),
                       border: OutlineInputBorder(),
                     ),
@@ -217,7 +218,7 @@ class _ListPageState extends State<ListPage> {
                   child: TextField(
                     controller: _dealershipController,
                     decoration: InputDecoration(
-                      labelText: 'Dealership ID',
+                      labelText: AppLocalizations.of(context)!.lbl_sales_dealership_id,
                       prefixIcon: Icon(Icons.store),
                       border: OutlineInputBorder(),
                     ),
@@ -230,7 +231,7 @@ class _ListPageState extends State<ListPage> {
                     controller: _dateController,
                     readOnly: true,
                     decoration: InputDecoration(
-                      labelText: 'Purchase Date',
+                      labelText: AppLocalizations.of(context)!.lbl_sales_purchase_date,
                       prefixIcon: Icon(Icons.calendar_today),
                       border: OutlineInputBorder(),
                     ),
@@ -253,7 +254,7 @@ class _ListPageState extends State<ListPage> {
                 ElevatedButton.icon(
                   onPressed: _addItem,
                   icon: Icon(Icons.add),
-                  label: Text("Add Item"),
+                  label: Text(AppLocalizations.of(context)!.msg_sales_add),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                     backgroundColor: Theme.of(context).colorScheme.primary,
@@ -273,7 +274,7 @@ class _ListPageState extends State<ListPage> {
           child: _items.isEmpty
               ? Center(
             child: Text(
-              "There are no items in the list.",
+              AppLocalizations.of(context)!.msg_sales_no_item,
               style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
             ),
           )
@@ -293,11 +294,11 @@ class _ListPageState extends State<ListPage> {
                   child: ListTile(
                     contentPadding: EdgeInsets.all(16),
                     title: Text(
-                      "Customer ID: ${item.customer_id} - Car ID: ${item.car_id}",
+                        AppLocalizations.of(context)!.lbl_sales_customer_id + ": ${item.customer_id} - " + AppLocalizations.of(context)!.lbl_sales_car_id + ": ${item.car_id}",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
-                      "Dealership ID: ${item.dealership_id}\nPurchase Date: ${item.purchase_date}",
+                        AppLocalizations.of(context)!.lbl_sales_dealership_id + ": ${item.dealership_id}\n" + AppLocalizations.of(context)!.lbl_sales_purchase_date + ": ${item.purchase_date}",
                       style: TextStyle(height: 1.5),
                     ),
                     trailing: Icon(Icons.chevron_right),
@@ -339,11 +340,49 @@ class _ListPageState extends State<ListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sales List'),
+        title: Text(AppLocalizations.of(context)!.title_sales,
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context), // Go back to previous screen
         ),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'instructions') {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text(AppLocalizations.of(context)!.title_sales_help),
+                      content: Text(
+                        AppLocalizations.of(context)!.msg_sales_help_description,
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(AppLocalizations.of(context)!.lbl_sales_close),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'instructions',
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.black54),
+                    SizedBox(width: 8),
+                    Text(AppLocalizations.of(context)!.menu_help),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         centerTitle: true,
       ),
@@ -382,20 +421,20 @@ class DetailsPage extends StatelessWidget {
               children: [
                 Center(
                   child: Text(
-                    "Item Details",
+                    AppLocalizations.of(context)!.title_sales_items,
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
                 SizedBox(height: 24),
-                _detailRow(Icons.person, "Customer ID", item.customer_id.toString()),
+                _detailRow(Icons.person, AppLocalizations.of(context)!.lbl_sales_customer_id, item.customer_id.toString()),
                 SizedBox(height: 12),
-                _detailRow(Icons.directions_car, "Car ID", item.car_id.toString()),
+                _detailRow(Icons.directions_car, AppLocalizations.of(context)!.lbl_sales_car_id, item.car_id.toString()),
                 SizedBox(height: 12),
-                _detailRow(Icons.store, "Dealership ID", item.dealership_id.toString()),
+                _detailRow(Icons.store, AppLocalizations.of(context)!.lbl_sales_dealership_id, item.dealership_id.toString()),
                 SizedBox(height: 12),
-                _detailRow(Icons.calendar_today, "Purchase Date", item.purchase_date.toString()),
+                _detailRow(Icons.calendar_today, AppLocalizations.of(context)!.lbl_sales_purchase_date, item.purchase_date.toString()),
                 SizedBox(height: 12),
-                _detailRow(Icons.numbers, "Record ID", item.id.toString()),
+                _detailRow(Icons.numbers, AppLocalizations.of(context)!.lbl_sales_id, item.id.toString()),
                 SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -403,7 +442,7 @@ class DetailsPage extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: onDelete,
                       icon: Icon(Icons.delete_outline),
-                      label: Text("Delete"),
+                      label: Text(AppLocalizations.of(context)!.lbl_sales_delete),
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -417,7 +456,7 @@ class DetailsPage extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: onClose,
                       icon: Icon(Icons.close),
-                      label: Text("Close"),
+                      label: Text(AppLocalizations.of(context)!.lbl_sales_close),
                       style: OutlinedButton.styleFrom(
                         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         shape: RoundedRectangleBorder(

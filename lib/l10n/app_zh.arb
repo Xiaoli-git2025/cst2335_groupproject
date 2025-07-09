@@ -1,0 +1,28 @@
+{
+    "@@locale": "zh",
+    "main_title": "车辆销售管理",
+    "main_lab_customer_list": "客户信息列表",
+    "main_lab_car_list": "车辆信息列表",
+    "main_lab_dealership_list": "经销商信息列表",
+    "main_lab_sales_list": "销售纪录列表",
+    "yes": "是",
+    "no": "否",
+    "menu_help": "用户指南",
+
+    "title_sales": "销售记录",
+    "title_sales_items": "销售记录详情",
+    "msg_sales_no_item": "销售纪录为空",
+    "msg_sales_add": "添加销售记录",
+    "msg_sales_add_choice": "是否拷贝上一次添加的记录信息？",
+    "title_sales_delete": "删除销售记录",
+    "msg_sales_delete_confirm": "确定删除销售记录么？",
+    "lbl_sales_customer_id": "客户号",
+    "lbl_sales_car_id": "车辆识别号",
+    "lbl_sales_dealership_id": "经销商代码",
+    "lbl_sales_purchase_date": "购买日期",
+    "lbl_sales_id": "记录号",
+    "lbl_sales_delete": "删除",
+    "lbl_sales_close": "关闭",
+    "title_sales_help": "用户使用指南",
+        "msg_sales_help_description": "1. 输入客户号，车辆识别号，经销商代码以及购买日期。\n2. 点击‘添加销售记录’按钮添加销售记录。\n3. 点击一条销售记录查看详情。\n4. 点击返回键返回主界面。"
+}
