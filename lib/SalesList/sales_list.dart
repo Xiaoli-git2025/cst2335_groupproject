@@ -3,26 +3,12 @@ import 'sales_item.dart';
 import 'sales_items_dao.dart';
 import '../database.dart';
 import '../database_provider.dart';
-
-//class SalesListPage extends StatelessWidget {
-
-//  @override
-//  Widget build(BuildContext context) {
-//    return MaterialApp(
-//      title: 'Sales List',
-//      theme: ThemeData(
-
-//        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-//        useMaterial3: true,
-//      ),
-//      home: ListPage(database: appDatabase),
-//    );
-//  }
-//}
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SalesListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    //appDatabase is from database_provider
     return ListPage(database: appDatabase); // Just return the actual content page
   }
 }
@@ -36,19 +22,18 @@ class ListPage extends StatefulWidget {
 }
 
 class _ListPageState extends State<ListPage> {
+  final _secureStorage = FlutterSecureStorage();
   late final SalesItemsDao _itemsDao;
   List<SalesItem> _items = [];
   SalesItem? _selectedItem;
 
-  late TextEditingController _itemController = TextEditingController();
-  late TextEditingController _quantityController = TextEditingController();
-
-  //List<Map<String, String>> _items = [];
+  late TextEditingController _customerController = TextEditingController();
+  late TextEditingController _carController = TextEditingController();
+  late TextEditingController _dealershipController = TextEditingController();
+  late TextEditingController _dateController = TextEditingController();
 
   @override
   void initState() {
-    //_itemController = TextEditingController();
-    //_quantityController = TextEditingController();
     super.initState();
     _itemsDao = widget.database.salesItemsDao;
     _loadItems();
@@ -56,23 +41,80 @@ class _ListPageState extends State<ListPage> {
 
   Future<void> _loadItems() async {
     final items = await _itemsDao.findAllItems();
-    print('Items count: ${items.length}');
     setState(() {
       _items = items;
+      if (_items.isEmpty) {
+        // Show SnackBar AFTER frame builds
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("There are no items in the list.")),
+          );
+        });
+      }
     });
+  }
+
+  void _showLastData() async {
+    final lastCustomer = await _secureStorage.read(key: 'last_sales_customer');
+    final lastCar = await _secureStorage.read(key: 'last_sales_car');
+    final lastDealership = await _secureStorage.read(key: 'last_sales_dealership');
+    final lastDate = await _secureStorage.read(key: 'last_sales_pdate');
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Add Sales Item"),
+        content: Text("Do you want to copy the previous item's data?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _customerController.text = lastCustomer ?? '';
+              _carController.text = lastCar ?? '';
+              _dealershipController.text = lastDealership ?? '';
+              _dateController.text = lastDate ?? '';
+              Navigator.pop(context);
+            },
+            child: Text("Copy Previous"),
+          ),
+          TextButton(
+            onPressed: () {
+              _customerController.clear();
+              _carController.clear();
+              _dealershipController.clear();
+              _dateController.clear();
+              Navigator.pop(context);
+            },
+            child: Text("Start Fresh"),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _addItem() async {
     //Get the current date and time and convert it into the number of milliseconds since January 1, 1970 (UTC) — also known as the Unix Epoch.
     final id = DateTime.now().millisecondsSinceEpoch;
-    String item = _itemController.text.trim();
-    String quantity = _quantityController.text.trim();
+    String customer = _customerController.text.trim();
+    String car = _carController.text.trim();
+    String dealership = _dealershipController.text.trim();
+    String date = _dateController.text.trim();
 
-    if (item.isNotEmpty && quantity.isNotEmpty) {
-      final newItem = SalesItem(id, item, int.tryParse(quantity) ?? 1);
+    if (customer.isNotEmpty && car.isNotEmpty && dealership.isNotEmpty && date.isNotEmpty) {
+      final newItem = SalesItem(
+        id,
+        int.parse(customer),
+        int.parse(car),
+        int.parse(dealership),
+        date,
+      );
       await _itemsDao.insertItem(newItem);
-      _itemController.clear();
-      _quantityController.clear();
+      await _secureStorage.write(key: 'last_sales_customer', value: customer);
+      await _secureStorage.write(key: 'last_sales_car', value: car);
+      await _secureStorage.write(key: 'last_sales_dealership', value: dealership);
+      await _secureStorage.write(key: 'last_sales_pdate', value: date);
+      _customerController.clear();
+      _carController.clear();
+      _dealershipController.clear();
+      _dateController.clear();
       _loadItems(); // reload after adding
     }
   }
@@ -121,64 +163,144 @@ class _ListPageState extends State<ListPage> {
   @override
   void dispose()
   {
-    _itemController.dispose();
-    _quantityController.dispose();
+    _customerController.dispose();
+    _carController.dispose();
+    _dealershipController.dispose();
+    _dateController.dispose();
     super.dispose();
   }
 
   Widget reactiveLayout(double width, double height) {
-    const int a = 2; // list width portion
-    const int b = 3; // details width portion
+    const int a = 3;
+    const int b = 2;
 
     Widget listWidget = Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _itemController,
-                  decoration: InputDecoration(
-                    hintText: 'Item name',
-                    border: OutlineInputBorder(),
+        // FORM AREA
+        Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Wrap(
+              runSpacing: 12,
+              spacing: 12,
+              children: [
+                SizedBox(
+                  width: 200,
+                  child: TextField(
+                    controller: _customerController,
+                    decoration: InputDecoration(
+                      labelText: 'Customer ID',
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    onTap: () => _showLastData(),
                   ),
                 ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  controller: _quantityController,
-                  decoration: InputDecoration(
-                    hintText: 'Quantity',
-                    border: OutlineInputBorder(),
+                SizedBox(
+                  width: 200,
+                  child: TextField(
+                    controller: _carController,
+                    decoration: InputDecoration(
+                      labelText: 'Car ID',
+                      prefixIcon: Icon(Icons.directions_car),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
                   ),
-                  keyboardType: TextInputType.number,
                 ),
-              ),
-              SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: _addItem,
-                child: Text("Add item"),
-              ),
-            ],
+                SizedBox(
+                  width: 200,
+                  child: TextField(
+                    controller: _dealershipController,
+                    decoration: InputDecoration(
+                      labelText: 'Dealership ID',
+                      prefixIcon: Icon(Icons.store),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                SizedBox(
+                  width: 200,
+                  child: TextField(
+                    controller: _dateController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Purchase Date',
+                      prefixIcon: Icon(Icons.calendar_today),
+                      border: OutlineInputBorder(),
+                    ),
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2101),
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          _dateController.text =
+                          "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                        });
+                      }
+                    },
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _addItem,
+                  icon: Icon(Icons.add),
+                  label: Text("Add Item"),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
+
+        // LIST AREA
         Expanded(
           child: _items.isEmpty
-              ? Center(child: Text("There are no items in the list."))
+              ? Center(
+            child: Text(
+              "There are no items in the list.",
+              style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+            ),
+          )
               : ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 16),
             itemCount: _items.length,
             itemBuilder: (context, index) {
               var item = _items[index];
               return GestureDetector(
                 onTap: () => _selectItem(item),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "${index + 1}: ${item.name} - Quantity: ${item.quantity}",
-                    style: TextStyle(fontSize: 16),
-                    textAlign: TextAlign.center,
+                child: Card(
+                  margin: EdgeInsets.symmetric(vertical: 6),
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.all(16),
+                    title: Text(
+                      "Customer ID: ${item.customer_id} - Car ID: ${item.car_id}",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      "Dealership ID: ${item.dealership_id}\nPurchase Date: ${item.purchase_date}",
+                      style: TextStyle(height: 1.5),
+                    ),
+                    trailing: Icon(Icons.chevron_right),
                   ),
                 ),
               );
@@ -188,6 +310,7 @@ class _ListPageState extends State<ListPage> {
       ],
     );
 
+    // Handle responsive layout
     Widget? detailsWidget = _selectedItem != null
         ? DetailsPage(
       item: _selectedItem!,
@@ -227,6 +350,7 @@ class _ListPageState extends State<ListPage> {
       body: reactiveLayout(width, height),
     );
   }
+
 }
 
 class DetailsPage extends StatelessWidget {
@@ -244,35 +368,86 @@ class DetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(24.0),
       child: Align(
-        alignment: Alignment.topCenter, // Ensures top + horizontally centered
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center, // horizontal centering
-          children: [
-            Text("Item Details", style: Theme.of(context).textTheme.headlineMedium),
-            SizedBox(height: 24),
-            Text("Name: ${item.name}", style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
-            Text("Quantity: ${item.quantity}", style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
-            Text("ID: ${item.id}", style: TextStyle(fontSize: 18)),
-            SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: onDelete,
-              child: Text("Delete"),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+        alignment: Alignment.topCenter,
+        child: Card(
+          elevation: 6,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    "Item Details",
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                SizedBox(height: 24),
+                _detailRow(Icons.person, "Customer ID", item.customer_id.toString()),
+                SizedBox(height: 12),
+                _detailRow(Icons.directions_car, "Car ID", item.car_id.toString()),
+                SizedBox(height: 12),
+                _detailRow(Icons.store, "Dealership ID", item.dealership_id.toString()),
+                SizedBox(height: 12),
+                _detailRow(Icons.calendar_today, "Purchase Date", item.purchase_date.toString()),
+                SizedBox(height: 12),
+                _detailRow(Icons.numbers, "Record ID", item.id.toString()),
+                SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: onDelete,
+                      icon: Icon(Icons.delete_outline),
+                      label: Text("Delete"),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    OutlinedButton.icon(
+                      onPressed: onClose,
+                      icon: Icon(Icons.close),
+                      label: Text("Close"),
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: onClose,
-              child: Text("Close"),
-            ),
-          ],
+          ),
         ),
-      )
+      ),
+    );
+  }
+
+  /// Helper widget to show an icon + label + value in a row
+  Widget _detailRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.grey[700]),
+        SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            "$label: $value",
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -4,7 +4,7 @@ import 'sales_item.dart';
 @dao
 abstract class SalesItemsDao {
   //this performs a SQL query and returns a List of your @entity class
-  @Query('SELECT * FROM Item')
+  @Query('SELECT * FROM SalesItem')
   Future<List<SalesItem>> findAllItems();
 
 

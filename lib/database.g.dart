@@ -96,7 +96,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Item` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `quantity` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `SalesItem` (`id` INTEGER NOT NULL, `customer_id` INTEGER NOT NULL, `car_id` INTEGER NOT NULL, `dealership_id` INTEGER NOT NULL, `purchase_date` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -115,22 +115,26 @@ class _$SalesItemsDao extends SalesItemsDao {
     this.database,
     this.changeListener,
   )   : _queryAdapter = QueryAdapter(database),
-        _itemInsertionAdapter = InsertionAdapter(
+        _salesItemInsertionAdapter = InsertionAdapter(
             database,
-            'Item',
+            'SalesItem',
             (SalesItem item) => <String, Object?>{
                   'id': item.id,
-                  'name': item.name,
-                  'quantity': item.quantity
+                  'customer_id': item.customer_id,
+                  'car_id': item.car_id,
+                  'dealership_id': item.dealership_id,
+                  'purchase_date': item.purchase_date
                 }),
-        _itemDeletionAdapter = DeletionAdapter(
+        _salesItemDeletionAdapter = DeletionAdapter(
             database,
-            'Item',
+            'SalesItem',
             ['id'],
             (SalesItem item) => <String, Object?>{
                   'id': item.id,
-                  'name': item.name,
-                  'quantity': item.quantity
+                  'customer_id': item.customer_id,
+                  'car_id': item.car_id,
+                  'dealership_id': item.dealership_id,
+                  'purchase_date': item.purchase_date
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -139,24 +143,28 @@ class _$SalesItemsDao extends SalesItemsDao {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<SalesItem> _itemInsertionAdapter;
+  final InsertionAdapter<SalesItem> _salesItemInsertionAdapter;
 
-  final DeletionAdapter<SalesItem> _itemDeletionAdapter;
+  final DeletionAdapter<SalesItem> _salesItemDeletionAdapter;
 
   @override
   Future<List<SalesItem>> findAllItems() async {
-    return _queryAdapter.queryList('SELECT * FROM Item',
+    return _queryAdapter.queryList('SELECT * FROM SalesItem',
         mapper: (Map<String, Object?> row) => SalesItem(
-            row['id'] as int, row['name'] as String, row['quantity'] as int));
+            row['id'] as int,
+            row['customer_id'] as int,
+            row['car_id'] as int,
+            row['dealership_id'] as int,
+            row['purchase_date'] as String));
   }
 
   @override
   Future<void> insertItem(SalesItem item) async {
-    await _itemInsertionAdapter.insert(item, OnConflictStrategy.abort);
+    await _salesItemInsertionAdapter.insert(item, OnConflictStrategy.abort);
   }
 
   @override
   Future<void> deleteItem(SalesItem item) async {
-    await _itemDeletionAdapter.delete(item);
+    await _salesItemDeletionAdapter.delete(item);
   }
 }
