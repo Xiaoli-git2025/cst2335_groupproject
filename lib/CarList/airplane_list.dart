@@ -8,12 +8,27 @@ class AirplaneListPage extends StatelessWidget {
   const AirplaneListPage({super.key, required this.database});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Airplane List')),
-      body:  AirplaneList(database: database),
+    return MaterialApp(
+      title: 'Airplane List',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Airplane List'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context), // Go back to previous screen
+          ),
+          centerTitle: true,
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
+        body: AirplaneList(database: database),
+      ),
     );
   }
 }
+
 
 class AirplaneList extends StatefulWidget {
   const AirplaneList({super.key, required this.database});
@@ -37,7 +52,12 @@ class _AirplaneListState extends State<AirplaneList> {
     _maxPassengersController = TextEditingController();
     _maxSpeedController = TextEditingController();
     _maxMileageController = TextEditingController();
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final snackBar = SnackBar(
+        content: Text('Loaded ${_items.length} airplanes'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
     _loadItems();
   }
 
