@@ -74,6 +74,9 @@ class _$AppDatabase extends AppDatabase {
 
   SalesItemsDao? _salesItemsDaoInstance;
 
+  CustomerItemsDao? _customerItemsDaoInstance;
+
+  AirplaneItemsDao? _airplaneItemsDaoInstance;
 
   Future<sqflite.Database> open(
     String path,
@@ -99,7 +102,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `SalesItem` (`id` INTEGER NOT NULL, `customer_id` INTEGER NOT NULL, `car_id` INTEGER NOT NULL, `dealership_id` INTEGER NOT NULL, `purchase_date` TEXT NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
-
+            'CREATE TABLE IF NOT EXISTS `CustomerItem` (`id` INTEGER NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `address` TEXT NOT NULL, `dateOfBirth` TEXT NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `AirplaneItem` (`id` INTEGER, `airplane_model` TEXT NOT NULL, `max_passengers` INTEGER NOT NULL, `max_speed` INTEGER NOT NULL, `max_mileage` INTEGER NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -113,7 +118,15 @@ class _$AppDatabase extends AppDatabase {
   }
 
   @override
+  CustomerItemsDao get customerItemsDao {
+    return _customerItemsDaoInstance ??=
+        _$CustomerItemsDao(database, changeListener);
+  }
 
+  @override
+  AirplaneItemsDao get airplaneItemsDao {
+    return _airplaneItemsDaoInstance ??=
+        _$AirplaneItemsDao(database, changeListener);
   }
 }
 
@@ -176,7 +189,31 @@ class _$SalesItemsDao extends SalesItemsDao {
   }
 }
 
-
+class _$CustomerItemsDao extends CustomerItemsDao {
+  _$CustomerItemsDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _customerItemInsertionAdapter = InsertionAdapter(
+            database,
+            'CustomerItem',
+            (CustomerItem item) => <String, Object?>{
+                  'id': item.id,
+                  'firstname': item.firstname,
+                  'lastname': item.lastname,
+                  'address': item.address,
+                  'dateOfBirth': item.dateOfBirth
+                }),
+        _customerItemDeletionAdapter = DeletionAdapter(
+            database,
+            'CustomerItem',
+            ['id'],
+            (CustomerItem item) => <String, Object?>{
+                  'id': item.id,
+                  'firstname': item.firstname,
+                  'lastname': item.lastname,
+                  'address': item.address,
+                  'dateOfBirth': item.dateOfBirth
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -185,6 +222,99 @@ class _$SalesItemsDao extends SalesItemsDao {
 
   final QueryAdapter _queryAdapter;
 
+  final InsertionAdapter<CustomerItem> _customerItemInsertionAdapter;
 
+  final DeletionAdapter<CustomerItem> _customerItemDeletionAdapter;
+
+  @override
+  Future<List<CustomerItem>> findAllItems() async {
+    return _queryAdapter.queryList('SELECT * FROM CustomerItem',
+        mapper: (Map<String, Object?> row) => CustomerItem(
+            row['id'] as int,
+            row['firstname'] as String,
+            row['lastname'] as String,
+            row['address'] as String,
+            row['dateOfBirth'] as String));
+  }
+
+  @override
+  Future<CustomerItem?> findItemById(int id) async {
+    return _queryAdapter.query('SELECT * FROM CustomerItem WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => CustomerItem(
+            row['id'] as int,
+            row['firstname'] as String,
+            row['lastname'] as String,
+            row['address'] as String,
+            row['dateOfBirth'] as String),
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> insertItem(CustomerItem item) async {
+    await _customerItemInsertionAdapter.insert(item, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteItem(CustomerItem item) async {
+    await _customerItemDeletionAdapter.delete(item);
+  }
+}
+
+class _$AirplaneItemsDao extends AirplaneItemsDao {
+  _$AirplaneItemsDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _airplaneItemInsertionAdapter = InsertionAdapter(
+            database,
+            'AirplaneItem',
+            (AirplaneItem item) => <String, Object?>{
+                  'id': item.id,
+                  'airplane_model': item.airplane_model,
+                  'max_passengers': item.max_passengers,
+                  'max_speed': item.max_speed,
+                  'max_mileage': item.max_mileage
+                }),
+        _airplaneItemDeletionAdapter = DeletionAdapter(
+            database,
+            'AirplaneItem',
+            ['id'],
+            (AirplaneItem item) => <String, Object?>{
+                  'id': item.id,
+                  'airplane_model': item.airplane_model,
+                  'max_passengers': item.max_passengers,
+                  'max_speed': item.max_speed,
+                  'max_mileage': item.max_mileage
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<AirplaneItem> _airplaneItemInsertionAdapter;
+
+  final DeletionAdapter<AirplaneItem> _airplaneItemDeletionAdapter;
+
+  @override
+  Future<List<AirplaneItem>> findAllItems() async {
+    return _queryAdapter.queryList('SELECT * FROM AirplaneItem',
+        mapper: (Map<String, Object?> row) => AirplaneItem(
+            row['id'] as int?,
+            row['airplane_model'] as String,
+            row['max_passengers'] as int,
+            row['max_speed'] as int,
+            row['max_mileage'] as int));
+  }
+
+  @override
+  Future<void> insertItem(AirplaneItem item) async {
+    await _airplaneItemInsertionAdapter.insert(item, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteItem(AirplaneItem item) async {
+    await _airplaneItemDeletionAdapter.delete(item);
   }
 }

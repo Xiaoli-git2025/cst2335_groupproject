@@ -5,9 +5,10 @@ import 'CarList/airplane_item.dart';
 import 'CarList/airplane_items_dao.dart';
 import 'SalesList/sales_items_dao.dart';
 import 'SalesList/sales_item.dart';
-part 'database.g.dart'; // the generated code will be there
 import 'CustomerList/customer_item.dart';
 import 'CustomerList/customer_items_dao.dart';
+part 'database.g.dart'; // the generated code will be there
+
 
 
 @Database(
