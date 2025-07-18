@@ -1,3 +1,4 @@
+import 'package:GroupProject/CustomerList/customer_items_dao.dart';
 import 'package:flutter/material.dart';
 import 'sales_item.dart';
 import 'sales_items_dao.dart';
@@ -29,8 +30,8 @@ class _ListPageState extends State<ListPage> {
   SalesItem? _selectedItem;
 
   late TextEditingController _customerController = TextEditingController();
-  late TextEditingController _carController = TextEditingController();
-  late TextEditingController _dealershipController = TextEditingController();
+  late TextEditingController _flightController = TextEditingController();
+  late TextEditingController _nameController = TextEditingController();
   late TextEditingController _dateController = TextEditingController();
 
   @override
@@ -57,8 +58,8 @@ class _ListPageState extends State<ListPage> {
 
   void _showLastData() async {
     final lastCustomer = await _secureStorage.read(key: 'last_sales_customer');
-    final lastCar = await _secureStorage.read(key: 'last_sales_car');
-    final lastDealership = await _secureStorage.read(key: 'last_sales_dealership');
+    final lastFlight = await _secureStorage.read(key: 'last_sales_flight');
+    final lastName = await _secureStorage.read(key: 'last_sales_name');
     final lastDate = await _secureStorage.read(key: 'last_sales_pdate');
     showDialog(
       context: context,
@@ -69,8 +70,8 @@ class _ListPageState extends State<ListPage> {
           TextButton(
             onPressed: () {
               _customerController.text = lastCustomer ?? '';
-              _carController.text = lastCar ?? '';
-              _dealershipController.text = lastDealership ?? '';
+              _flightController.text = lastFlight ?? '';
+              _nameController.text = lastName ?? '';
               _dateController.text = lastDate ?? '';
               Navigator.pop(context);
             },
@@ -79,8 +80,8 @@ class _ListPageState extends State<ListPage> {
           TextButton(
             onPressed: () {
               _customerController.clear();
-              _carController.clear();
-              _dealershipController.clear();
+              _flightController.clear();
+              _nameController.clear();
               _dateController.clear();
               Navigator.pop(context);
             },
@@ -95,26 +96,26 @@ class _ListPageState extends State<ListPage> {
     //Get the current date and time and convert it into the number of milliseconds since January 1, 1970 (UTC) — also known as the Unix Epoch.
     final id = DateTime.now().millisecondsSinceEpoch;
     String customer = _customerController.text.trim();
-    String car = _carController.text.trim();
-    String dealership = _dealershipController.text.trim();
+    String flight = _flightController.text.trim();
+    String name = _nameController.text.trim();
     String date = _dateController.text.trim();
 
-    if (customer.isNotEmpty && car.isNotEmpty && dealership.isNotEmpty && date.isNotEmpty) {
+    if (customer.isNotEmpty && flight.isNotEmpty && name.isNotEmpty && date.isNotEmpty) {
       final newItem = SalesItem(
         id,
         int.parse(customer),
-        int.parse(car),
-        int.parse(dealership),
+        flight,
+        name,
         date,
       );
       await _itemsDao.insertItem(newItem);
       await _secureStorage.write(key: 'last_sales_customer', value: customer);
-      await _secureStorage.write(key: 'last_sales_car', value: car);
-      await _secureStorage.write(key: 'last_sales_dealership', value: dealership);
+      await _secureStorage.write(key: 'last_sales_flight', value: flight);
+      await _secureStorage.write(key: 'last_sales_name', value: name);
       await _secureStorage.write(key: 'last_sales_pdate', value: date);
       _customerController.clear();
-      _carController.clear();
-      _dealershipController.clear();
+      _flightController.clear();
+      _nameController.clear();
       _dateController.clear();
       _loadItems(); // reload after adding
     }
@@ -165,8 +166,8 @@ class _ListPageState extends State<ListPage> {
   void dispose()
   {
     _customerController.dispose();
-    _carController.dispose();
-    _dealershipController.dispose();
+    _flightController.dispose();
+    _nameController.dispose();
     _dateController.dispose();
     super.dispose();
   }
@@ -189,7 +190,20 @@ class _ListPageState extends State<ListPage> {
               spacing: 12,
               children: [
                 SizedBox(
-                  width: 200,
+                  width: 230,
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.lbl_sales_reservation_name,
+                      prefixIcon: Icon(Icons.abc),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    onTap: () => _showLastData(),
+                  ),
+                ),
+                SizedBox(
+                  width: 230,
                   child: TextField(
                     controller: _customerController,
                     decoration: InputDecoration(
@@ -198,35 +212,22 @@ class _ListPageState extends State<ListPage> {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
-                    onTap: () => _showLastData(),
                   ),
                 ),
                 SizedBox(
-                  width: 200,
+                  width: 230,
                   child: TextField(
-                    controller: _carController,
+                    controller: _flightController,
                     decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.lbl_sales_car_id,
-                      prefixIcon: Icon(Icons.directions_car),
+                      labelText: AppLocalizations.of(context)!.lbl_sales_flight_id,
+                      prefixIcon: Icon(Icons.airplanemode_active),
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
                   ),
                 ),
                 SizedBox(
-                  width: 200,
-                  child: TextField(
-                    controller: _dealershipController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.lbl_sales_dealership_id,
-                      prefixIcon: Icon(Icons.store),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                SizedBox(
-                  width: 200,
+                  width: 230,
                   child: TextField(
                     controller: _dateController,
                     readOnly: true,
@@ -294,11 +295,13 @@ class _ListPageState extends State<ListPage> {
                   child: ListTile(
                     contentPadding: EdgeInsets.all(16),
                     title: Text(
-                        AppLocalizations.of(context)!.lbl_sales_customer_id + ": ${item.customer_id} - " + AppLocalizations.of(context)!.lbl_sales_car_id + ": ${item.car_id}",
+                        AppLocalizations.of(context)!.lbl_sales_reservation_name + ": ${item.reservation_name}",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
-                        AppLocalizations.of(context)!.lbl_sales_dealership_id + ": ${item.dealership_id}\n" + AppLocalizations.of(context)!.lbl_sales_purchase_date + ": ${item.purchase_date}",
+                        AppLocalizations.of(context)!.lbl_sales_customer_id + ": ${item.customer_id}\n" +
+                            AppLocalizations.of(context)!.lbl_sales_flight_id + ": ${item.flight_id}\n" +
+                            AppLocalizations.of(context)!.lbl_sales_purchase_date + ": ${item.purchase_date}",
                       style: TextStyle(height: 1.5),
                     ),
                     trailing: Icon(Icons.chevron_right),
@@ -392,7 +395,175 @@ class _ListPageState extends State<ListPage> {
 
 }
 
-class DetailsPage extends StatelessWidget {
+class DetailsPage extends StatefulWidget {
+  final SalesItem item;
+  final VoidCallback onDelete;
+  final VoidCallback onClose;
+
+  const DetailsPage({
+    required this.item,
+    required this.onDelete,
+    required this.onClose,
+    super.key,
+  });
+
+  @override
+  State<DetailsPage> createState() => _DetailsPageState();
+}
+
+class _DetailsPageState extends State<DetailsPage> {
+  String? customerFullName;
+  String? departCity;
+  String? destCity;
+  String? departTime;
+  String? arriveTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCustomerFullNameAndFlightInfo();
+  }
+
+  Future<void> _loadCustomerFullNameAndFlightInfo() async {
+    final fullName = await appDatabase.customerItemsDao.getCustomerFullNameById(widget.item.customer_id);
+    //final dpCity = await appDatabase.flightItemsDao.getFlightById(widget.item.flight_id).depart_city);
+    //final dtCity = await appDatabase.flightItemsDao.getFlightById(widget.item.flight_id).destination_city);
+    //final dpTime = await appDatabase.flightItemsDao.getFlightById(widget.item.flight_id).depart_time);
+    //final arTime = await appDatabase.flightItemsDao.getFlightById(widget.item.flight_id).arrive_time);
+    setState(() {
+      customerFullName = fullName ?? 'Unknown Customer';
+      //departCity = dpCity ?? "N/A";
+      //destCity = dtCity ?? "N/A";
+      //departTime = dpTime ?? "N/A";
+      //arriveTime = arTime ?? "N/A";
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _loadCustomerFullNameAndFlightInfo();
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Card(
+          elevation: 6,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    AppLocalizations.of(context)!.title_sales_items,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _detailRow(
+                    Icons.abc,
+                    AppLocalizations.of(context)!.lbl_sales_reservation_name,
+                    widget.item.reservation_name.toString()),
+                const SizedBox(height: 12),
+                _detailRow(
+                  Icons.person,
+                  AppLocalizations.of(context)!.lbl_sales_customer_name,
+                  customerFullName ?? 'Loading...',
+                ),
+                const SizedBox(height: 12),
+                _detailRow(
+                    Icons.airplanemode_active,
+                    AppLocalizations.of(context)!.lbl_sales_flight_id,
+                    widget.item.flight_id.toString()),
+                const SizedBox(height: 12),
+                Text(
+                  '       ${AppLocalizations.of(context)!.lbl_sales_depart_city}: ${departCity ?? 'Loading...'}',
+                  style: TextStyle(fontSize: 18),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '       ${AppLocalizations.of(context)!.lbl_sales_destination_city}: ${destCity ?? 'Loading...'}',
+                  style: TextStyle(fontSize: 18),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '       ${AppLocalizations.of(context)!.lbl_sales_depart_time}: ${departTime ?? 'Loading...'}',
+                  style: TextStyle(fontSize: 18),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '       ${AppLocalizations.of(context)!.lbl_sales_arrive_time}: ${arriveTime ?? 'Loading...'}',
+                  style: TextStyle(fontSize: 18),
+                ),
+                const SizedBox(height: 12),
+                _detailRow(
+                    Icons.calendar_today,
+                    AppLocalizations.of(context)!.lbl_sales_purchase_date,
+                    widget.item.purchase_date.toString()),
+                const SizedBox(height: 12),
+                _detailRow(
+                    Icons.numbers,
+                    AppLocalizations.of(context)!.lbl_sales_id,
+                    widget.item.id.toString()),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: widget.onDelete,
+                      icon: const Icon(Icons.delete_outline),
+                      label: Text(AppLocalizations.of(context)!.lbl_sales_delete),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    OutlinedButton.icon(
+                      onPressed: widget.onClose,
+                      icon: const Icon(Icons.close),
+                      label: Text(AppLocalizations.of(context)!.lbl_sales_close),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Helper widget
+  Widget _detailRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.grey[700]),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            "$label: $value",
+            style: const TextStyle(fontSize: 18),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/*class DetailsPage extends StatelessWidget {
   final SalesItem item;
   final VoidCallback onDelete;
   final VoidCallback onClose;
@@ -489,4 +660,4 @@ class DetailsPage extends StatelessWidget {
       ],
     );
   }
-}
+}*/

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'SalesList/sales_list.dart';
 import 'CustomerList/customer_list.dart';
-import 'CarList/car_list.dart';
-import 'CarList/airplane_list.dart';
-import 'CarDealershipList/car_dealership_list.dart';
+import 'AirplaneList/airplane_list.dart';
+import 'FlightList/flight_list.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 import 'database_provider.dart';
 
 
@@ -22,14 +20,14 @@ class HomePageWithButtons extends StatelessWidget {
         'route': CustomerListPage(),
       },
       {
-        'label': AppLocalizations.of(context)!.main_lab_car_list,
-        'icon': Icons.directions_car,
+        'label': AppLocalizations.of(context)!.main_lab_airplane_list,
+        'icon': Icons.flight,
         'route': AirplaneListPage(database: appDatabase),
       },
       {
-        'label': AppLocalizations.of(context)!.main_lab_dealership_list,
-        'icon': Icons.store,
-        'route': DealershipListPage(),
+        'label': AppLocalizations.of(context)!.main_lab_flight_list,
+        'icon': Icons.airplane_ticket,
+        'route': FlightListPage(),
       },
       {
         'label': AppLocalizations.of(context)!.main_lab_sales_list,

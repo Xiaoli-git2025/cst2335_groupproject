@@ -100,7 +100,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `SalesItem` (`id` INTEGER NOT NULL, `customer_id` INTEGER NOT NULL, `car_id` INTEGER NOT NULL, `dealership_id` INTEGER NOT NULL, `purchase_date` TEXT NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `SalesItem` (`id` INTEGER NOT NULL, `customer_id` INTEGER NOT NULL, `flight_id` TEXT NOT NULL, `reservation_name` TEXT NOT NULL, `purchase_date` TEXT NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `CustomerItem` (`id` INTEGER NOT NULL, `firstname` TEXT NOT NULL, `lastname` TEXT NOT NULL, `address` TEXT NOT NULL, `dateOfBirth` TEXT NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
@@ -141,8 +141,8 @@ class _$SalesItemsDao extends SalesItemsDao {
             (SalesItem item) => <String, Object?>{
                   'id': item.id,
                   'customer_id': item.customer_id,
-                  'car_id': item.car_id,
-                  'dealership_id': item.dealership_id,
+                  'flight_id': item.flight_id,
+                  'reservation_name': item.reservation_name,
                   'purchase_date': item.purchase_date
                 }),
         _salesItemDeletionAdapter = DeletionAdapter(
@@ -152,8 +152,8 @@ class _$SalesItemsDao extends SalesItemsDao {
             (SalesItem item) => <String, Object?>{
                   'id': item.id,
                   'customer_id': item.customer_id,
-                  'car_id': item.car_id,
-                  'dealership_id': item.dealership_id,
+                  'flight_id': item.flight_id,
+                  'reservation_name': item.reservation_name,
                   'purchase_date': item.purchase_date
                 });
 
@@ -173,8 +173,8 @@ class _$SalesItemsDao extends SalesItemsDao {
         mapper: (Map<String, Object?> row) => SalesItem(
             row['id'] as int,
             row['customer_id'] as int,
-            row['car_id'] as int,
-            row['dealership_id'] as int,
+            row['flight_id'] as String,
+            row['reservation_name'] as String,
             row['purchase_date'] as String));
   }
 
@@ -238,14 +238,10 @@ class _$CustomerItemsDao extends CustomerItemsDao {
   }
 
   @override
-  Future<CustomerItem?> findItemById(int id) async {
-    return _queryAdapter.query('SELECT * FROM CustomerItem WHERE id = ?1',
-        mapper: (Map<String, Object?> row) => CustomerItem(
-            row['id'] as int,
-            row['firstname'] as String,
-            row['lastname'] as String,
-            row['address'] as String,
-            row['dateOfBirth'] as String),
+  Future<String?> getCustomerFullNameById(int id) async {
+    return _queryAdapter.query(
+        'SELECT firstname || \" \" || lastname FROM CustomerItem WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => row.values.first as String,
         arguments: [id]);
   }
 

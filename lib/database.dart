@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
-import 'CarList/airplane_item.dart';
-import 'CarList/airplane_items_dao.dart';
+import 'AirplaneList/airplane_item.dart';
+import 'AirplaneList/airplane_items_dao.dart';
 import 'SalesList/sales_items_dao.dart';
 import 'SalesList/sales_item.dart';
 import 'CustomerList/customer_item.dart';
