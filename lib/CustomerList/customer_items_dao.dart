@@ -16,7 +16,7 @@ abstract class CustomerItemsDao {
   @insert
   Future<void> insertItem(CustomerItem item);
 
-  @Query('SELECT * FROM CustomerItem WHERE id = :id')
-  Future<CustomerItem?> findItemById(int id);
+  @Query('SELECT firstname || " " || lastname FROM CustomerItem WHERE id = :id')
+  Future<String?> getCustomerFullNameById(int id);
 
 }

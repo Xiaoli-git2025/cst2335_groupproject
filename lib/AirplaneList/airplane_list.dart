@@ -1,4 +1,4 @@
-import 'package:GroupProject/CarList/airplane_item.dart';
+import 'package:GroupProject/AirplaneList/airplane_item.dart';
 import 'package:flutter/material.dart';
 import '../database.dart';
 
