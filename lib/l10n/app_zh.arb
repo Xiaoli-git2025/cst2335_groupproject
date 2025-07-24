@@ -29,5 +29,22 @@
     "lbl_sales_delete": "删除",
     "lbl_sales_close": "关闭",
     "title_sales_help": "用户使用指南",
-        "msg_sales_help_description": "1. 输入客户号，航班号及航班日期。\n2. 点击‘添加预定’按钮添加预定记录。\n3. 点击一条预定记录查看详情。\n4. 点击返回键返回主界面。"
-}
+    "msg_sales_help_description": "1. 输入客户号，航班号及航班日期。\n2. 点击‘添加预定’按钮添加预定记录。\n3. 点击一条预定记录查看详情。\n4. 点击返回键返回主界面。",
+
+    "title_airplane": "飞机信息列表",
+    "airplane_model": "型号",
+    "airplane_max_passengers": "最大乘客数",
+    "airplane_max_speed": "最大速度",
+    "airplane_max_mileage": "最大里程",
+    "add_airplane": "添加飞机",
+    "airplane_message_no_items": "没有更多记录了",
+    "airplane_message_selected_item": "请选择一条记录",
+    "airplane_save_list": "保存列表",
+    "airplane_save_list_message": "是否保存此列表？",
+    "airplane_save_list_yes": "是",
+    "airplane_save_list_no": "否",
+    "airplane_update": "更新飞机信息",
+    "airplane_delete_button": "删除",
+    "airplane_cancel_button": "取消",
+    "airplane_update_button": "更新"
+   }

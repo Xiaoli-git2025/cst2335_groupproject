@@ -1,31 +1,24 @@
 import 'package:GroupProject/AirplaneList/airplane_item.dart';
 import 'package:flutter/material.dart';
 import '../database.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class AirplaneListPage extends StatelessWidget {
   final AppDatabase database;
   const AirplaneListPage({super.key, required this.database});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Airplane List',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Airplane List'),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed:
-                () => Navigator.pop(context), // Go back to previous screen
-          ),
-          centerTitle: true,
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.title_airplane),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context), // Go back to previous screen
         ),
-        body: AirplaneList(database: database),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
+      body: AirplaneList(database: database),
     );
   }
 }
@@ -120,8 +113,8 @@ class _AirplaneListState extends State<AirplaneList> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Save List'),
-          content: Text('Do you want to save this list？'),
+          title: Text(AppLocalizations.of(context)!.add_airplane),
+          content: Text(AppLocalizations.of(context)!.airplane_save_list_message),
           actions: [
             ElevatedButton(
               onPressed: () {
@@ -148,18 +141,18 @@ class _AirplaneListState extends State<AirplaneList> {
       _items.isEmpty
           ? Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text('There is no more records'),
+        child: Text(AppLocalizations.of(context)!.airplane_message_no_items),
       )
           : ListView.builder(
         itemCount: _items.length,
         itemBuilder: (context, index) {
           final item = _items[index];
           return ListTile(
-            title: Text('Model: ${item.airplane_model}'),
+            title: Text("${AppLocalizations.of(context)!.airplane_model}: ${item.airplane_model}"),
             subtitle: Text(
-              'Passengers: ${item.max_passengers}, '
-                  'Speed: ${item.max_speed}, '
-                  'Mileage: ${item.max_mileage}',
+                "${AppLocalizations.of(context)!.airplane_max_passengers}: ${item.max_passengers}, "
+                    "${AppLocalizations.of(context)!.airplane_max_speed}: ${item.max_speed}, "
+                    "${AppLocalizations.of(context)!.airplane_max_mileage}: ${item.max_mileage}"
             ),
             onTap: () {
               showUpdatePage(item);
@@ -177,10 +170,10 @@ class _AirplaneListState extends State<AirplaneList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Model: ${item.airplane_model}'),
-            Text('Passengers: ${item.max_passengers}'),
-            Text('Speed: ${item.max_speed}'),
-            Text('Mileage: ${item.max_mileage}'),
+            Text("${AppLocalizations.of(context)!.airplane_model}: ${item.airplane_model}"),
+            Text("${AppLocalizations.of(context)!.airplane_max_passengers}: ${item.max_passengers}"),
+            Text("${AppLocalizations.of(context)!.airplane_max_speed}: ${item.max_speed}"),
+            Text("${AppLocalizations.of(context)!.airplane_max_mileage}: ${item.max_mileage}"),
             Row(
               children: [
                 ElevatedButton(
@@ -191,7 +184,7 @@ class _AirplaneListState extends State<AirplaneList> {
                       _loadItems();
                     });
                   },
-                  child: Text('Update'),
+                  child: Text(AppLocalizations.of(context)!.airplane_update_button),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -200,7 +193,7 @@ class _AirplaneListState extends State<AirplaneList> {
                       selectedItem = null;
                     });
                   },
-                  child: Text('Delete'),
+                  child: Text(AppLocalizations.of(context)!.airplane_delete_button),
                 ),
                 SizedBox(width: 10),
                 ElevatedButton(
@@ -209,7 +202,7 @@ class _AirplaneListState extends State<AirplaneList> {
                       selectedItem = null;
                     });
                   },
-                  child: Text('close'),
+                  child: Text(AppLocalizations.of(context)!.airplane_cancel_button),
                 ),
               ],
             ),
@@ -229,29 +222,29 @@ class _AirplaneListState extends State<AirplaneList> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Update Airplane'),
+          title: Text(AppLocalizations.of(context)!.airplane_update),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: _modelController,
-                  decoration: InputDecoration(labelText: 'Model'),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context)!.airplane_model),
                   keyboardType: TextInputType.text,
                 ),
                 TextField(
                   controller: _maxPassengersController,
-                  decoration: InputDecoration(labelText: 'Passengers'),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context)!.airplane_max_passengers),
                   keyboardType: TextInputType.number,
                 ),
                 TextField(
                   controller: _maxSpeedController,
-                  decoration: InputDecoration(labelText: 'Speed'),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context)!.airplane_max_speed),
                   keyboardType: TextInputType.number,
                 ),
                 TextField(
                   controller: _maxMileageController,
-                  decoration: InputDecoration(labelText: 'Mileage'),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context)!.airplane_max_mileage),
                   keyboardType: TextInputType.number,
                 ),
               ],
@@ -263,20 +256,20 @@ class _AirplaneListState extends State<AirplaneList> {
                 _updateItem(item);
                 Navigator.of(context).pop();
               },
-              child: Text('Update'),
+              child: Text(AppLocalizations.of(context)!.airplane_update_button),
             ),
             ElevatedButton(
               onPressed: () {
                 _deleteItem(item);
                 Navigator.of(context).pop();
               },
-              child: Text('Delete'),
+              child: Text(AppLocalizations.of(context)!.airplane_delete_button),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.airplane_cancel_button),
             ),
           ],
         );
@@ -301,7 +294,7 @@ class _AirplaneListState extends State<AirplaneList> {
                     Expanded(
                       child: TextField(
                         controller: _modelController,
-                        decoration: InputDecoration(labelText: 'Model'),
+                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.airplane_model),
                         keyboardType: TextInputType.number,
                       ),
                     ),
@@ -310,7 +303,7 @@ class _AirplaneListState extends State<AirplaneList> {
                       child: TextField(
                         controller: _maxPassengersController,
                         decoration: InputDecoration(
-                          labelText: 'Max Passengers',
+                          labelText: AppLocalizations.of(context)!.airplane_max_passengers,
                         ),
                         keyboardType: TextInputType.number,
                       ),
@@ -323,7 +316,7 @@ class _AirplaneListState extends State<AirplaneList> {
                     Expanded(
                       child: TextField(
                         controller: _maxSpeedController,
-                        decoration: InputDecoration(labelText: 'Max Speed'),
+                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.airplane_max_speed),
                         keyboardType: TextInputType.number,
                       ),
                     ),
@@ -331,7 +324,7 @@ class _AirplaneListState extends State<AirplaneList> {
                     Expanded(
                       child: TextField(
                         controller: _maxMileageController,
-                        decoration: InputDecoration(labelText: 'Max Mileage'),
+                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.airplane_max_mileage),
                         keyboardType: TextInputType.number,
                       ),
                     ),
@@ -340,7 +333,7 @@ class _AirplaneListState extends State<AirplaneList> {
                 SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _showDialog,
-                  child: Text('Add Airplane'),
+                  child: Text(AppLocalizations.of(context)!.airplane_save_list),
                 ),
                 SizedBox(height: 16),
                 Expanded(
@@ -355,7 +348,7 @@ class _AirplaneListState extends State<AirplaneList> {
                         child:
                         selectedItem != null
                             ? detailedPage(selectedItem!)
-                            : Center(child: Text('Select an item')),
+                            : Center(child: Text(AppLocalizations.of(context)!.airplane_message_selected_item)),
                       ),
                     ],
                   )
