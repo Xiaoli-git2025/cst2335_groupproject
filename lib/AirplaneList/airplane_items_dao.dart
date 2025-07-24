@@ -14,4 +14,7 @@ abstract class AirplaneItemsDao {
   //This performs a SQL insert operation, but you must create a unique id variable
   @insert
   Future<void> insertItem(AirplaneItem item);
+
+  @update
+  Future<void> updateItem(AirplaneItem item);
 }
