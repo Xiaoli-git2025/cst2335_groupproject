@@ -1,7 +1,9 @@
 import 'package:GroupProject/AirplaneList/airplane_item.dart';
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import '../database.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class AirplaneListPage extends StatelessWidget {
   final AppDatabase database;
   const AirplaneListPage({super.key, required this.database});
@@ -17,6 +19,28 @@ class AirplaneListPage extends StatelessWidget {
         ),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.help),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text(AppLocalizations.of(context)!.airplane_question_title),
+                  content: Text(AppLocalizations.of(context)!.airplane_question_instruction),
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(AppLocalizations.of(context)!.airplane_question_button),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: AirplaneList(database: database),
     );
@@ -47,6 +71,7 @@ class _AirplaneListState extends State<AirplaneList> {
     _maxSpeedController = TextEditingController();
     _maxMileageController = TextEditingController();
     _loadItems();
+    _loadLastAirplane();
   }
 
   Future<void> _loadItems() async {
@@ -60,6 +85,11 @@ class _AirplaneListState extends State<AirplaneList> {
   }
 
   void _addItem() async {
+    final error = _validateInput();
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      return;
+    }
     final item = AirplaneItem(
       null,
       _modelController.text,
@@ -69,29 +99,11 @@ class _AirplaneListState extends State<AirplaneList> {
     );
     await widget.database.airplaneItemsDao.insertItem(item);
     await _loadItems();
+    await _saveToEncryptedSharedPreferences();
     _modelController.clear();
     _maxPassengersController.clear();
     _maxSpeedController.clear();
     _maxMileageController.clear();
-  }
-
-  void _updateItem(AirplaneItem item) async {
-    showUpdatePage(item);
-    if (selectedItem != null) {
-      final updatedItem = AirplaneItem(
-        selectedItem!.id,
-        _modelController.text,
-        int.parse(_maxPassengersController.text),
-        int.parse(_maxSpeedController.text),
-        int.parse(_maxMileageController.text),
-      );
-      await widget.database.airplaneItemsDao.updateItem(updatedItem);
-      await _loadItems();
-      _modelController.clear();
-      _maxPassengersController.clear();
-      _maxSpeedController.clear();
-      _maxMileageController.clear();
-    }
   }
 
   void _deleteItem(AirplaneItem item) async {
@@ -108,6 +120,44 @@ class _AirplaneListState extends State<AirplaneList> {
     super.dispose();
   }
 
+  Future<void> _loadLastAirplane() async {
+    final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+    String? model = await prefs.getString('airplane_model');
+    String? maxPassengers = await prefs.getString('airplane_max_passengers');
+    String? maxSpeed = await prefs.getString('airplane_max_speed');
+    String? maxMileage = await prefs.getString('airplane_max_mileage');
+
+    if(model != null) _modelController.text = model;
+    if(maxPassengers != null) _maxPassengersController.text = maxPassengers;
+    if(maxSpeed != null) _maxSpeedController.text = maxSpeed;
+    if(maxMileage != null) _maxMileageController.text = maxMileage;
+  }
+
+  Future<void> _saveToEncryptedSharedPreferences() async {
+    final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+    await prefs.setString('airplane_model', _modelController.text);
+    await prefs.setString('airplane_max_passengers', _maxPassengersController.text);
+    await prefs.setString('airplane_max_speed', _maxSpeedController.text);
+    await prefs.setString('airplane_max_mileage', _maxMileageController.text);
+  }
+
+  String? _validateInput() {
+    if(_modelController.text.isEmpty || _maxPassengersController.text.isEmpty ||
+        _maxSpeedController.text.isEmpty || _maxMileageController.text.isEmpty) {
+      return AppLocalizations.of(context)!.airplane_error_message_String;
+    }
+    if (int.tryParse(_maxPassengersController.text) == null) {
+      return AppLocalizations.of(context)!.airplane_error_message_Number;
+    }
+    if (int.tryParse(_maxSpeedController.text) == null) {
+      return AppLocalizations.of(context)!.airplane_error_message_Number;
+    }
+    if (int.tryParse(_maxMileageController.text) == null) {
+      return AppLocalizations.of(context)!.airplane_error_message_Number;
+    }
+    return null;
+  }
+
   void _showDialog() {
     showDialog(
       context: context,
@@ -121,13 +171,13 @@ class _AirplaneListState extends State<AirplaneList> {
                 _addItem();
                 Navigator.of(context).pop();
               },
-              child: Text('yes'),
+              child: Text(AppLocalizations.of(context)!.airplane_save_list_yes),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('No'),
+              child: Text(AppLocalizations.of(context)!.airplane_save_list_no),
             ),
           ],
         );
@@ -137,8 +187,7 @@ class _AirplaneListState extends State<AirplaneList> {
 
   Widget listView() {
     return Expanded(
-      child:
-      _items.isEmpty
+      child: _items.isEmpty
           ? Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(AppLocalizations.of(context)!.airplane_message_no_items),
@@ -178,7 +227,7 @@ class _AirplaneListState extends State<AirplaneList> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    _updateItem(item);
+                    showUpdatePage(item);
                     setState(() {
                       selectedItem = null;
                       _loadItems();
@@ -253,7 +302,20 @@ class _AirplaneListState extends State<AirplaneList> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                _updateItem(item);
+                final errorMessage = _validateInput();
+                if(errorMessage != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+                  return;
+                }
+                final updatedItem = AirplaneItem(
+                  item.id,
+                  _modelController.text,
+                  int.parse(_maxPassengersController.text),
+                  int.parse(_maxSpeedController.text),
+                  int.parse(_maxMileageController.text),
+                );
+                widget.database.airplaneItemsDao.updateItem(updatedItem);
+                _loadItems();
                 Navigator.of(context).pop();
               },
               child: Text(AppLocalizations.of(context)!.airplane_update_button),
@@ -337,16 +399,14 @@ class _AirplaneListState extends State<AirplaneList> {
                 ),
                 SizedBox(height: 16),
                 Expanded(
-                  child:
-                  isWide
+                  child: isWide
                       ? Row(
                     children: [
                       Expanded(flex: 1, child: listView()),
                       VerticalDivider(),
                       Expanded(
                         flex: 1,
-                        child:
-                        selectedItem != null
+                        child: selectedItem != null
                             ? detailedPage(selectedItem!)
                             : Center(child: Text(AppLocalizations.of(context)!.airplane_message_selected_item)),
                       ),

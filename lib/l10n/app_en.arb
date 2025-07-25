@@ -45,6 +45,10 @@
     "airplane_update": "Update Airplane",
     "airplane_delete_button": "Delete",
     "airplane_cancel_button": "Cancel",
-    "airplane_update_button": "update"
-
+    "airplane_update_button": "update",
+    "airplane_question_title": "How to Use",
+    "airplane_question_instruction": "1. Enter the airplane details.\n2. Tap 'Add' to save the airplane.\n3. Select an item from the list to update or delete it.\n4. Use the back button to return to the main menu.",
+    "airplane_question_button": "close",
+    "airplane_error_message_String": "Please enter model in type of String.",
+    "airplane_error_message_Number": "Please enter in type of Number."
 }
