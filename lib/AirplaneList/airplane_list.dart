@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../database.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+//Main Screen wideget for displaying the airplane list
 class AirplaneListPage extends StatelessWidget {
   final AppDatabase database;
   const AirplaneListPage({super.key, required this.database});
@@ -46,7 +47,7 @@ class AirplaneListPage extends StatelessWidget {
     );
   }
 }
-
+//Widget that manages the airplane list state
 class AirplaneList extends StatefulWidget {
   const AirplaneList({super.key, required this.database});
   final AppDatabase database;
@@ -60,8 +61,8 @@ class _AirplaneListState extends State<AirplaneList> {
   late TextEditingController _maxPassengersController;
   late TextEditingController _maxSpeedController;
   late TextEditingController _maxMileageController;
-  List<AirplaneItem> _items = [];
-  AirplaneItem? selectedItem;
+  List<AirplaneItem> _items = [];// List of airplane items
+  AirplaneItem? selectedItem; // currently selected item for detail view
 
   @override
   void initState() {
@@ -70,10 +71,10 @@ class _AirplaneListState extends State<AirplaneList> {
     _maxPassengersController = TextEditingController();
     _maxSpeedController = TextEditingController();
     _maxMileageController = TextEditingController();
-    _loadItems();
-    _loadLastAirplane();
+    _loadItems();// load from database
+    _loadLastAirplane(); // load from the shared preferences
   }
-
+// Load items from the database
   Future<void> _loadItems() async {
     final items = await widget.database.airplaneItemsDao.findAllItems();
     setState(() {
@@ -82,10 +83,10 @@ class _AirplaneListState extends State<AirplaneList> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Loaded ${items.length} airplanes')));
-  }
-
+  }// Show a snackbar with the number of items loaded
+ // Add a new airplane item to the database
   void _addItem() async {
-    final error = _validateInput();
+    final error = _validateInput(); // validation
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
       return;
@@ -105,12 +106,12 @@ class _AirplaneListState extends State<AirplaneList> {
     _maxSpeedController.clear();
     _maxMileageController.clear();
   }
-
+//Delete an airplane item from the database
   void _deleteItem(AirplaneItem item) async {
     await widget.database.airplaneItemsDao.deleteItem(item);
     await _loadItems();
   }
-
+//clear up the controllers
   @override
   void dispose() {
     _modelController.dispose();
@@ -119,7 +120,7 @@ class _AirplaneListState extends State<AirplaneList> {
     _maxMileageController.dispose();
     super.dispose();
   }
-
+//Load last save airplane item from the shared preferences
   Future<void> _loadLastAirplane() async {
     final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
     String? model = await prefs.getString('airplane_model');
@@ -132,7 +133,7 @@ class _AirplaneListState extends State<AirplaneList> {
     if(maxSpeed != null) _maxSpeedController.text = maxSpeed;
     if(maxMileage != null) _maxMileageController.text = maxMileage;
   }
-
+// Save current airplane item to the shared preferences
   Future<void> _saveToEncryptedSharedPreferences() async {
     final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
     await prefs.setString('airplane_model', _modelController.text);
@@ -140,7 +141,7 @@ class _AirplaneListState extends State<AirplaneList> {
     await prefs.setString('airplane_max_speed', _maxSpeedController.text);
     await prefs.setString('airplane_max_mileage', _maxMileageController.text);
   }
-
+//Check if the input is valid
   String? _validateInput() {
     if(_modelController.text.isEmpty || _maxPassengersController.text.isEmpty ||
         _maxSpeedController.text.isEmpty || _maxMileageController.text.isEmpty) {
@@ -157,7 +158,7 @@ class _AirplaneListState extends State<AirplaneList> {
     }
     return null;
   }
-
+//Show confirmation dialog before saving the list
   void _showDialog() {
     showDialog(
       context: context,
@@ -184,7 +185,7 @@ class _AirplaneListState extends State<AirplaneList> {
       },
     );
   }
-
+// Display list of airplane items
   Widget listView() {
     return Expanded(
       child: _items.isEmpty
@@ -204,14 +205,14 @@ class _AirplaneListState extends State<AirplaneList> {
                     "${AppLocalizations.of(context)!.airplane_max_mileage}: ${item.max_mileage}"
             ),
             onTap: () {
-              showUpdatePage(item);
+              showUpdatePage(item); // Show update page
             },
           );
         },
       ),
     );
   }
-
+//Display detailed view of an airplane item
   Widget detailedPage(AirplaneItem item) {
     return SingleChildScrollView(
       child: Padding(
@@ -260,7 +261,7 @@ class _AirplaneListState extends State<AirplaneList> {
       ),
     );
   }
-
+// Show update page for an airplane item
   Future<void> showUpdatePage(AirplaneItem item) async {
     _modelController.text = item.airplane_model;
     _maxPassengersController.text = item.max_passengers.toString();
@@ -338,13 +339,13 @@ class _AirplaneListState extends State<AirplaneList> {
       },
     );
   }
-
+// Build the airplane list widget
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          bool isWide = constraints.maxWidth > 600;
+          bool isWide = constraints.maxWidth > 600; // Check if the screen is wide
           return Padding(
             padding: EdgeInsets.all(16),
             child: Column(
@@ -398,6 +399,7 @@ class _AirplaneListState extends State<AirplaneList> {
                   child: Text(AppLocalizations.of(context)!.airplane_save_list),
                 ),
                 SizedBox(height: 16),
+                // Display either split view or list only
                 Expanded(
                   child: isWide
                       ? Row(
