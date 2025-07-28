@@ -1,20 +1,22 @@
+// Importing Flutter and required packages
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../database.dart';
-import '../database_provider.dart';
-import 'customer_item.dart';
-import 'customer_items_dao.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../database.dart';               // Local database definition
+import '../database_provider.dart';     // Provides the AppDatabase instance
+import 'customer_item.dart';            // Model class for a customer
+import 'customer_items_dao.dart';       // Data access object for customer operations
 
+// Entry point widget for the Customer List page
 class CustomerListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ListPage(database: appDatabase);
+    return ListPage(database: appDatabase); // Injecting the database instance
   }
 }
 
+// Main stateful widget handling all logic and UI for customer management
 class ListPage extends StatefulWidget {
   final AppDatabase database;
   const ListPage({required this.database, super.key});
@@ -24,11 +26,12 @@ class ListPage extends StatefulWidget {
 }
 
 class _ListPageState extends State<ListPage> {
-  final _secureStorage = FlutterSecureStorage();
-  late final CustomerItemsDao _itemsDao;
-  List<CustomerItem> _items = [];
-  CustomerItem? _selectedItem;
+  final _secureStorage = FlutterSecureStorage(); // Optional: for secure data
+  late final CustomerItemsDao _itemsDao;         // DAO to handle database operations
+  List<CustomerItem> _items = [];                // List of all customers
+  CustomerItem? _selectedItem;                   // Currently selected customer for editing
 
+  // Controllers for form input fields
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _addressController = TextEditingController();
@@ -38,21 +41,21 @@ class _ListPageState extends State<ListPage> {
   void initState() {
     super.initState();
     _itemsDao = widget.database.customerItemsDao;
-    _loadItems();
+    _loadItems(); // Load customers from the database when screen initializes
   }
 
+  // Loads all customer records from the database
   Future<void> _loadItems() async {
-
     final items = await _itemsDao.findAllItems();
     setState(() {
       _items = items;
     });
     if (items.isEmpty) {
-      // _showMessage('No customer records found');
       _showMessage(AppLocalizations.of(context)!.noRecords);
     }
   }
 
+  // Handles adding a new customer or updating an existing one
   Future<void> _addOrUpdateItem() async {
     final fn = _firstNameController.text.trim();
     final ln = _lastNameController.text.trim();
@@ -62,15 +65,15 @@ class _ListPageState extends State<ListPage> {
     if (fn.isEmpty || ln.isEmpty || addr.isEmpty || dob.isEmpty) return;
 
     if (_selectedItem == null) {
+      // Add new customer
       final id = DateTime.now().millisecondsSinceEpoch;
       final newItem = CustomerItem(id, fn, ln, addr, dob);
       await _itemsDao.insertItem(newItem);
-      // _showMessage('Customer added successfully');
       _showMessage(AppLocalizations.of(context)!.customerAdd);
     } else {
+      // Update existing customer
       final updated = CustomerItem(_selectedItem!.id, fn, ln, addr, dob);
       await _itemsDao.updateItem(updated);
-      // _showMessage('Customer updated successfully');
       _showMessage(AppLocalizations.of(context)!.customerUpdate);
     }
 
@@ -78,6 +81,7 @@ class _ListPageState extends State<ListPage> {
     _loadItems();
   }
 
+  // Copies data from the last saved customer into the form
   Future<void> _copyLastCustomer() async {
     final last = await _itemsDao.getLastCustomer();
     if (last != null) {
@@ -90,6 +94,7 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
+  // Asks user to confirm deletion of a customer
   Future<void> _confirmDelete(CustomerItem item) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -102,6 +107,7 @@ class _ListPageState extends State<ListPage> {
         ],
       ),
     );
+
     if (confirm == true) {
       await _itemsDao.deleteItem(item);
       _clearForm();
@@ -110,6 +116,7 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
+  // Populates form fields when an item is tapped
   void _selectItem(CustomerItem item) {
     setState(() {
       _selectedItem = item;
@@ -120,6 +127,7 @@ class _ListPageState extends State<ListPage> {
     });
   }
 
+  // Clears form and resets the selection
   void _clearForm() {
     setState(() {
       _firstNameController.clear();
@@ -130,6 +138,7 @@ class _ListPageState extends State<ListPage> {
     });
   }
 
+  // Shows temporary toast-like message using SnackBar
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -139,9 +148,11 @@ class _ListPageState extends State<ListPage> {
     );
   }
 
+  // Main UI layout that adapts between portrait and landscape modes
   Widget _responsiveLayout(double width, double height) {
     Widget formAndList = Column(
       children: [
+        // Top form card
         Card(
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -152,33 +163,49 @@ class _ListPageState extends State<ListPage> {
               spacing: 12,
               runSpacing: 12,
               children: [
+                // First name field
                 SizedBox(
                   width: 200,
                   child: TextField(
                     controller: _firstNameController,
-                    decoration: InputDecoration(labelText: AppLocalizations.of(context)!.first_name, border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.first_name,
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                 ),
+                // Last name field
                 SizedBox(
                   width: 200,
                   child: TextField(
                     controller: _lastNameController,
-                    decoration: InputDecoration(labelText: AppLocalizations.of(context)!.last_name, border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.last_name,
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                 ),
+                // Address field
                 SizedBox(
                   width: 200,
                   child: TextField(
                     controller: _addressController,
-                    decoration: InputDecoration(labelText: AppLocalizations.of(context)!.address, border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.address,
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                 ),
+                // Date of birth field with calendar picker
                 SizedBox(
                   width: 200,
                   child: TextField(
                     controller: _dobController,
                     readOnly: true,
-                    decoration: InputDecoration(labelText: AppLocalizations.of(context)!.date_of_birth, border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.date_of_birth,
+                      border: OutlineInputBorder(),
+                    ),
                     onTap: () async {
                       DateTime? picked = await showDatePicker(
                         context: context,
@@ -193,15 +220,19 @@ class _ListPageState extends State<ListPage> {
                     },
                   ),
                 ),
+                // Submit button (add or update)
                 ElevatedButton.icon(
                   onPressed: _addOrUpdateItem,
                   icon: Icon(_selectedItem == null ? Icons.add : Icons.save),
-                  label: Text(_selectedItem == null ? AppLocalizations.of(context)!.addCustomer : AppLocalizations.of(context)!.saveCustomer),
+                  label: Text(_selectedItem == null
+                      ? AppLocalizations.of(context)!.addCustomer
+                      : AppLocalizations.of(context)!.saveCustomer),
                   style: ElevatedButton.styleFrom(
                     elevation: 3,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                 ),
+                // Copy last customer button
                 ElevatedButton.icon(
                   onPressed: _copyLastCustomer,
                   icon: Icon(Icons.copy),
@@ -211,6 +242,7 @@ class _ListPageState extends State<ListPage> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                 ),
+                // Cancel edit button (only shows when editing)
                 if (_selectedItem != null)
                   ElevatedButton.icon(
                     onPressed: _clearForm,
@@ -218,8 +250,6 @@ class _ListPageState extends State<ListPage> {
                     label: Text(AppLocalizations.of(context)!.cancel_edit),
                     style: ElevatedButton.styleFrom(
                       elevation: 3,
-
-
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
@@ -227,6 +257,8 @@ class _ListPageState extends State<ListPage> {
             ),
           ),
         ),
+
+        // Customer list section
         Expanded(
           child: _items.isEmpty
               ? Center(
@@ -250,7 +282,6 @@ class _ListPageState extends State<ListPage> {
                     contentPadding: EdgeInsets.all(16),
                     title: Text('${item.firstname} ${item.lastname}', style: TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                      // 'Address: ${item.address}\nDate of Birth: ${item.dateOfBirth}',
                       '${AppLocalizations.of(context)!.address}: ${item.address}\n${AppLocalizations.of(context)!.date_of_birth}: ${item.dateOfBirth}',
                       style: TextStyle(height: 1.5),
                     ),
@@ -272,6 +303,7 @@ class _ListPageState extends State<ListPage> {
     )
         : Container();
 
+    // Responsive design for large screen
     if (width > height && width > 720) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,6 +314,7 @@ class _ListPageState extends State<ListPage> {
         ],
       );
     } else {
+      // On small screen, either form/list or details panel
       return _selectedItem == null ? formAndList : detailPanel;
     }
   }
@@ -300,6 +333,7 @@ class _ListPageState extends State<ListPage> {
         ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          // Help/Instructions popup
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'instructions') {
@@ -317,7 +351,12 @@ class _ListPageState extends State<ListPage> {
                         Text(AppLocalizations.of(context)!.instruction4),
                       ],
                     ),
-                    actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.customerClose))],
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(AppLocalizations.of(context)!.customerClose),
+                      )
+                    ],
                   ),
                 );
               }
@@ -340,6 +379,7 @@ class _ListPageState extends State<ListPage> {
   }
 }
 
+// Detailed view widget shown when a customer is selected
 class DetailsPage extends StatelessWidget {
   final CustomerItem item;
   final VoidCallback onDelete;
@@ -375,7 +415,6 @@ class DetailsPage extends StatelessWidget {
                     label: Text(AppLocalizations.of(context)!.delete),
                     style: ElevatedButton.styleFrom(
                       elevation: 3,
-
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
@@ -386,7 +425,6 @@ class DetailsPage extends StatelessWidget {
                     label: Text(AppLocalizations.of(context)!.customerClose),
                     style: ElevatedButton.styleFrom(
                       elevation: 3,
-
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
