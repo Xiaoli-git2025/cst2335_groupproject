@@ -19,4 +19,9 @@ abstract class CustomerItemsDao {
   @Query('SELECT firstname || " " || lastname FROM CustomerItem WHERE id = :id')
   Future<String?> getCustomerFullNameById(int id);
 
+  @update
+  Future<void> updateItem(CustomerItem item);
+
+  @Query('SELECT * FROM CustomerItem ORDER BY id DESC LIMIT 1')
+  Future<CustomerItem?> getLastCustomer();
 }
