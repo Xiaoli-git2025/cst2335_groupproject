@@ -51,5 +51,31 @@
     "airplane_question_instruction": "1. 输入飞机信息 \n2. 点击‘添加飞机’按钮保存飞机信息 \n3. 选择列表中的一条记录进行更新或删除 \n4. 点击返回键返回主界面",
     "airplane_question_button": "关闭",
     "airplane_error_message": "请输入字符串",
-    "airplane_error_message_Number": "请输入数字"
+    "airplane_error_message_Number": "请输入数字",
+
+
+    "noRecords": "未找到客户记录",
+    "customerAdd": "成功添加客户",
+    "customerUpdate": "成功更新客户",
+    "delete": "删除",
+    "deleteMessage" : "你确定你要删除这个客户嘛?",
+    "no_customer": "否",
+    "yes_customer": "是",
+    "customerDelete": "客户被删除",
+    "first_name": "名",
+    "last_name": "姓",
+    "address": "地址",
+    "date_of_birth": "出生日期",
+    "copy_last": "复制之前客户",
+    "cancel_edit": "取消编辑",
+    "customer_list": "客户名单",
+    "instrcution_customer":"操作说明",
+    "instruction1": "• 在名单里填写客户信息.",
+    "instruction2": "• 按 添加客户 存储信息.",
+    "instruction3": "• 按客户名单编辑",
+    "instruction4": "• 按 复制之前客户 使用之前信息.",
+    "customerClose": "关闭",
+    "addCustomer": "添加客户",
+    "saveCustomer" : "保存修改",
+    "detail": "客户信息"
    }
