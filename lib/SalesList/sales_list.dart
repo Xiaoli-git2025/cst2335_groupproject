@@ -7,7 +7,12 @@ import '../database_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+///Main Screen widget for displaying the reservation list
 class SalesListPage extends StatelessWidget {
+  /// Builds the widget tree for the SalesListPage.
+  ///
+  /// Returns the main content widget [ListPage], passing the
+  /// initialized [appDatabase] instance to it for data operations.
   @override
   Widget build(BuildContext context) {
     //appDatabase is from database_provider
@@ -15,8 +20,13 @@ class SalesListPage extends StatelessWidget {
   }
 }
 
+/// A stateful widget that displays and manages a list of sales items.
+///
+/// Requires an instance of [AppDatabase] to perform database operations.
 class ListPage extends StatefulWidget {
+  /// The database instance used for accessing sales data.
   final AppDatabase database;
+  /// Creates a [ListPage] widget with the given [database].
   const ListPage({required this.database, super.key});
 
   @override
@@ -24,16 +34,28 @@ class ListPage extends StatefulWidget {
 }
 
 class _ListPageState extends State<ListPage> {
+  /// Secure storage instance to save and retrieve persistent key-value data.
   final _secureStorage = FlutterSecureStorage();
+  /// DAO for accessing sales items in the database.
   late final SalesItemsDao _itemsDao;
+  /// The list of sales items loaded from the database.
   List<SalesItem> _items = [];
+  /// Currently selected sales item, if any.
   SalesItem? _selectedItem;
 
+  /// Controller for the customer input TextField.
   late TextEditingController _customerController = TextEditingController();
+  /// Controller for the flight input TextField.
   late TextEditingController _flightController = TextEditingController();
+  /// Controller for the name input TextField.
   late TextEditingController _nameController = TextEditingController();
+  /// Controller for the date input TextField.
   late TextEditingController _dateController = TextEditingController();
 
+  /// Initializes the state and loads sales items from the database.
+  ///
+  /// Retrieves the DAO instance from the injected database and triggers
+  /// the initial data load.
   @override
   void initState() {
     super.initState();
@@ -41,6 +63,7 @@ class _ListPageState extends State<ListPage> {
     _loadItems();
   }
 
+  /// Load items from the database
   Future<void> _loadItems() async {
     final items = await _itemsDao.findAllItems();
     setState(() {
@@ -56,10 +79,15 @@ class _ListPageState extends State<ListPage> {
     });
   }
 
+  ///show last added item information
   void _showLastData() async {
+    ///last input Customer
     final lastCustomer = await _secureStorage.read(key: 'last_sales_customer');
+    ///last input flight
     final lastFlight = await _secureStorage.read(key: 'last_sales_flight');
+    ///last input name
     final lastName = await _secureStorage.read(key: 'last_sales_name');
+    ///last input date
     final lastDate = await _secureStorage.read(key: 'last_sales_pdate');
     showDialog(
       context: context,
@@ -91,9 +119,9 @@ class _ListPageState extends State<ListPage> {
       ),
     );
   }
-
+  ///add item
   Future<void> _addItem() async {
-    //Get the current date and time and convert it into the number of milliseconds since January 1, 1970 (UTC) — also known as the Unix Epoch.
+    ///Get the current date and time and convert it into the number of milliseconds since January 1, 1970 (UTC) — also known as the Unix Epoch.
     final id = DateTime.now().millisecondsSinceEpoch;
     String customer = _customerController.text.trim();
     String flight = _flightController.text.trim();
@@ -121,6 +149,7 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
+  ///confirm delete dialog
   Future<void> _confirmDelete(SalesItem item) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
@@ -161,7 +190,7 @@ class _ListPageState extends State<ListPage> {
       _selectedItem = null;
     });
   }
-
+  ///clear up the controllers
   @override
   void dispose()
   {
@@ -172,6 +201,17 @@ class _ListPageState extends State<ListPage> {
     super.dispose();
   }
 
+  /// Builds a responsive layout that adapts to screen size and orientation.
+  ///
+  /// When the screen is wide enough (e.g., landscape on tablets or desktops),
+  /// it displays the list and details side-by-side.
+  /// Otherwise, it shows either the list or the details view.
+  ///
+  /// Parameters:
+  /// - [width]: the width of the available screen area.
+  /// - [height]: the height of the available screen area.
+  ///
+  /// Returns a [Widget] containing the appropriate layout.
   Widget reactiveLayout(double width, double height) {
     const int a = 3;
     const int b = 2;
@@ -336,6 +376,7 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
+  ///Build the reservation list widget
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -395,11 +436,17 @@ class _ListPageState extends State<ListPage> {
 
 }
 
+/// Displays detailed information about a single reservation item,
+/// including customer and flight information, with options to delete or close.
 class DetailsPage extends StatefulWidget {
+  /// The reservation item to display details for.
   final SalesItem item;
+  /// Callback when the delete button is pressed.
   final VoidCallback onDelete;
+  /// Callback when the close button is pressed.
   final VoidCallback onClose;
 
+  /// Creates a DetailsPage widget with the given item and callbacks.
   const DetailsPage({
     required this.item,
     required this.onDelete,
@@ -412,10 +459,19 @@ class DetailsPage extends StatefulWidget {
 }
 
 class _DetailsPageState extends State<DetailsPage> {
+  /// Full name of the customer associated with the sales item.
   String? customerFullName;
+
+  /// Departure city of the flight (currently commented out).
   String? departCity;
+
+  /// Destination city of the flight (currently commented out).
   String? destCity;
+
+  /// Departure time of the flight (currently commented out).
   String? departTime;
+
+  /// Arrival time of the flight (currently commented out).
   String? arriveTime;
 
   @override
@@ -424,6 +480,8 @@ class _DetailsPageState extends State<DetailsPage> {
     _loadCustomerFullNameAndFlightInfo();
   }
 
+  /// Loads the customer's full name and flight information asynchronously,
+  /// then updates the widget's state to display this information.
   Future<void> _loadCustomerFullNameAndFlightInfo() async {
     final fullName = await appDatabase.customerItemsDao.getCustomerFullNameById(widget.item.customer_id);
     //final dpCity = await appDatabase.flightItemsDao.getFlightById(widget.item.flight_id).depart_city);
@@ -439,6 +497,7 @@ class _DetailsPageState extends State<DetailsPage> {
     });
   }
 
+  ///build detail widget
   @override
   Widget build(BuildContext context) {
     _loadCustomerFullNameAndFlightInfo();
@@ -546,7 +605,9 @@ class _DetailsPageState extends State<DetailsPage> {
     );
   }
 
-  /// Helper widget
+  /// Helper widget to create a row with an icon, label, and value.
+  ///
+  /// Used for displaying fields in the details view.
   Widget _detailRow(IconData icon, String label, String value) {
     return Row(
       children: [
@@ -562,102 +623,3 @@ class _DetailsPageState extends State<DetailsPage> {
     );
   }
 }
-
-/*class DetailsPage extends StatelessWidget {
-  final SalesItem item;
-  final VoidCallback onDelete;
-  final VoidCallback onClose;
-
-  const DetailsPage({
-    required this.item,
-    required this.onDelete,
-    required this.onClose,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Card(
-          elevation: 6,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Text(
-                    AppLocalizations.of(context)!.title_sales_items,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ),
-                SizedBox(height: 24),
-                _detailRow(Icons.person, AppLocalizations.of(context)!.lbl_sales_customer_id, item.customer_id.toString()),
-                SizedBox(height: 12),
-                _detailRow(Icons.directions_car, AppLocalizations.of(context)!.lbl_sales_car_id, item.car_id.toString()),
-                SizedBox(height: 12),
-                _detailRow(Icons.store, AppLocalizations.of(context)!.lbl_sales_dealership_id, item.dealership_id.toString()),
-                SizedBox(height: 12),
-                _detailRow(Icons.calendar_today, AppLocalizations.of(context)!.lbl_sales_purchase_date, item.purchase_date.toString()),
-                SizedBox(height: 12),
-                _detailRow(Icons.numbers, AppLocalizations.of(context)!.lbl_sales_id, item.id.toString()),
-                SizedBox(height: 32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: onDelete,
-                      icon: Icon(Icons.delete_outline),
-                      label: Text(AppLocalizations.of(context)!.lbl_sales_delete),
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 16),
-                    OutlinedButton.icon(
-                      onPressed: onClose,
-                      icon: Icon(Icons.close),
-                      label: Text(AppLocalizations.of(context)!.lbl_sales_close),
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Helper widget to show an icon + label + value in a row
-  Widget _detailRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.grey[700]),
-        SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            "$label: $value",
-            style: TextStyle(fontSize: 18),
-          ),
-        ),
-      ],
-    );
-  }
-}*/

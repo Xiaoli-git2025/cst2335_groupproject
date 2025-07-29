@@ -10,7 +10,11 @@ import 'CustomerList/customer_items_dao.dart';
 part 'database.g.dart'; // the generated code will be there
 
 
-
+/// The main database class annotated with `@Database`.
+///
+/// This class defines the version and the list of entities (tables)
+/// included in the database. It also provides access to the associated
+/// DAO (Data Access Object) interfaces.
 @Database(
   version: 1,
   entities: [
@@ -21,8 +25,11 @@ part 'database.g.dart'; // the generated code will be there
   ],
 )
 abstract class AppDatabase extends FloorDatabase {
+  /// Gets the DAO for accessing reservation item records.
   SalesItemsDao get salesItemsDao;
+  /// Gets the DAO for accessing customer item records.
   CustomerItemsDao get customerItemsDao;
+  /// Gets the DAO for accessing airplane item records.
   AirplaneItemsDao get airplaneItemsDao;
 // Add more DAOs as needed
 }
