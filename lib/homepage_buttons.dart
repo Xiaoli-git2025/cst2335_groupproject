@@ -6,13 +6,15 @@ import 'FlightList/flight_list.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'database_provider.dart';
 
-
+/// Stateless widget for the home page with 4 navigation buttons and a language switcher
 class HomePageWithButtons extends StatelessWidget {
   final Function(Locale) onLocaleChanged;
   const HomePageWithButtons({super.key, required this.onLocaleChanged});
 
+  /// Builds the widget tree for the homepage buttons screen.
   @override
   Widget build(BuildContext context) {
+    /// Button configuration: label, icon, and destination route
     final List<Map<String, dynamic>> buttonData = [
       {
         'label': AppLocalizations.of(context)!.main_lab_customer_list,
@@ -38,11 +40,13 @@ class HomePageWithButtons extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        // Localized title in bold indigo color
         title: Text(
             AppLocalizations.of(context)!.main_title,
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)
         ),
         actions: [
+          // Language switcher dropdown
           PopupMenuButton<Locale>(
             icon: Icon(Icons.language),
             onSelected: onLocaleChanged,
@@ -65,6 +69,7 @@ class HomePageWithButtons extends StatelessWidget {
         padding: const EdgeInsets.all(32.0),
         child: Column(
           children: [
+            // First row of buttons
             Expanded(
               child: Row(
                 children: [
@@ -75,6 +80,7 @@ class HomePageWithButtons extends StatelessWidget {
               ),
             ),
             SizedBox(height: 32),
+            // Second row of buttons
             Expanded(
               child: Row(
                 children: [
@@ -90,7 +96,7 @@ class HomePageWithButtons extends StatelessWidget {
     );
   }
 
-  /// Builds one button with styling
+  /// Builds a styled button with an icon and label, and navigates to the given route
   Widget _buildPaddedButton(BuildContext context, Map<String, dynamic> data) {
     return Expanded(
       child: Container(
@@ -105,6 +111,7 @@ class HomePageWithButtons extends StatelessWidget {
             padding: const EdgeInsets.all(24),
           ),
           onPressed: () {
+            // Navigate to the assigned page
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => data['route']),
