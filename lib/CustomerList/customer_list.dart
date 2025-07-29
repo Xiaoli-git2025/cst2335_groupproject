@@ -333,7 +333,7 @@ class _ListPageState extends State<ListPage> {
         ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
-          // Help/Instructions popup
+          // Help and Instructions popup
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'instructions') {
