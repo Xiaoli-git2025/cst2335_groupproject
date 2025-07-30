@@ -27,6 +27,7 @@
     "instructions": "Talimatlar",
     "flightInstructions": "+ butonunu kullanarak uçuş ekleyin. Bir uçuşa dokunarak detayları görebilir veya güncelleyebilirsiniz.",
     "ok": "Tamam",
+    "msg_sales_update": "Guncelleme",
     "errorLoadingFlights": "Uçuşlar yüklenirken hata oluştu",
     "msg_sales_deleted": "Uçuş silindi",
     "@msg_sales_deleted": {

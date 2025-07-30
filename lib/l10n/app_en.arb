@@ -23,6 +23,7 @@
     "arrives": "Arrives",
     "instructions": "Instructions",
     "flight_deleted": "Flight deleted",
+    "msg_sales_update": "Updated",
     "flightInstructions": "Use the + button to add flights. Tap a flight to see details or update/delete it.",
     "ok": "OK",
     "msg_sales_confirm_delete": "Are you sure you want to delete this flight?",
