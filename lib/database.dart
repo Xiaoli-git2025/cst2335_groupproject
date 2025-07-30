@@ -5,6 +5,8 @@ import 'AirplaneList/airplane_item.dart';
 import 'AirplaneList/airplane_items_dao.dart';
 import 'SalesList/sales_items_dao.dart';
 import 'SalesList/sales_item.dart';
+import 'FlightList/flight_dao.dart';
+import 'FlightList/flights.dart';
 import 'CustomerList/customer_item.dart';
 import 'CustomerList/customer_items_dao.dart';
 part 'database.g.dart'; // the generated code will be there
@@ -31,6 +33,8 @@ abstract class AppDatabase extends FloorDatabase {
   CustomerItemsDao get customerItemsDao;
   /// Gets the DAO for accessing airplane item records.
   AirplaneItemsDao get airplaneItemsDao;
+  FlightDao get flightDao;
+
 // Add more DAOs as needed
 }
 

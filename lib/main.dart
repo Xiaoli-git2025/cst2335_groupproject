@@ -51,6 +51,7 @@ class _MyAppState extends State<MyApp> {
       supportedLocales: const [
         Locale('en'),
         Locale('zh'),
+        Locale('tr'),
       ],
       home: HomePageWithButtons(onLocaleChanged: onLocaleChanged),
     );
