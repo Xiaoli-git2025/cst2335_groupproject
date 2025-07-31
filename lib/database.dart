@@ -22,7 +22,8 @@ part 'database.g.dart'; // the generated code will be there
   entities: [
     SalesItem,
     CustomerItem,
-    AirplaneItem
+    AirplaneItem,
+    Flight
     // Add more entities like Car, Dealership if needed
   ],
 )
@@ -33,6 +34,7 @@ abstract class AppDatabase extends FloorDatabase {
   CustomerItemsDao get customerItemsDao;
   /// Gets the DAO for accessing airplane item records.
   AirplaneItemsDao get airplaneItemsDao;
+  /// Gets the DAO for accessing flight item records.
   FlightDao get flightDao;
 
 // Add more DAOs as needed

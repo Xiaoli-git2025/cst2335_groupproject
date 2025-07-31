@@ -6,6 +6,7 @@ import '../database.dart';
 import '../database_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../FlightList/flights.dart';
 
 ///Main Screen widget for displaying the reservation list
 class SalesListPage extends StatelessWidget {
@@ -474,6 +475,7 @@ class _DetailsPageState extends State<DetailsPage> {
   /// Arrival time of the flight (currently commented out).
   String? arriveTime;
 
+  late Flight? flight;
   @override
   void initState() {
     super.initState();
@@ -484,16 +486,17 @@ class _DetailsPageState extends State<DetailsPage> {
   /// then updates the widget's state to display this information.
   Future<void> _loadCustomerFullNameAndFlightInfo() async {
     final fullName = await appDatabase.customerItemsDao.getCustomerFullNameById(widget.item.customer_id);
-    //final dpCity = await appDatabase.flightItemsDao.getFlightById(widget.item.flight_id).depart_city);
-    //final dtCity = await appDatabase.flightItemsDao.getFlightById(widget.item.flight_id).destination_city);
-    //final dpTime = await appDatabase.flightItemsDao.getFlightById(widget.item.flight_id).depart_time);
-    //final arTime = await appDatabase.flightItemsDao.getFlightById(widget.item.flight_id).arrive_time);
+    flight = await appDatabase.flightDao.findFlightById(int.parse(widget.item.flight_id)).first;
+    final dpCity = flight?.departureCity ?? 'Unknown';
+    final dtCity = flight?.destinationCity ?? 'Unknown';
+    final dpTime = flight?.departureTime ?? 'Unknown';
+    final arTime = flight?.arrivalTime ?? 'Unknown';
     setState(() {
       customerFullName = fullName ?? 'Unknown Customer';
-      //departCity = dpCity ?? "N/A";
-      //destCity = dtCity ?? "N/A";
-      //departTime = dpTime ?? "N/A";
-      //arriveTime = arTime ?? "N/A";
+      departCity = dpCity ?? "N/A";
+      destCity = dtCity ?? "N/A";
+      departTime = dpTime ?? "N/A";
+      arriveTime = arTime ?? "N/A";
     });
   }
 
