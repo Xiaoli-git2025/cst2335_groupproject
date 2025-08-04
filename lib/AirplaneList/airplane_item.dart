@@ -2,8 +2,8 @@ import 'package:floor/floor.dart';
 
 @Entity(tableName: 'AirplaneItem')
 class AirplaneItem {
-  //static int ID = 1;
-  //@PrimaryKey(autoGenerate: true)
+  ///static int ID = 1;
+  ///@PrimaryKey(autoGenerate: true)
   @primaryKey
   final int? id;
   final String airplane_model;

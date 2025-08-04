@@ -4,9 +4,14 @@ import 'package:flutter/material.dart';
 import '../database.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-//Main Screen wideget for displaying the airplane list
+///Main Screen wideget for displaying the airplane list
+/// A stateless widget representing the main screen that displays a list of airplanes.
+/// This screen contains an AppBar with a help icon and uses the AirplaneList
+/// widget as its main content. It also supports localization.
 class AirplaneListPage extends StatelessWidget {
+  /// The database instance used to retrieve and modify airplane items.
   final AppDatabase database;
+  /// Constructs the AirplaneListPage widget with the provided AppDatabase.
   const AirplaneListPage({super.key, required this.database});
 
   @override
@@ -47,23 +52,31 @@ class AirplaneListPage extends StatelessWidget {
     );
   }
 }
-//Widget that manages the airplane list state
+///Widget that manages the airplane list state
 class AirplaneList extends StatefulWidget {
+  /// The database instance used for CRUD operations.
   const AirplaneList({super.key, required this.database});
+  /// Constructs the [AirplaneList] widget with the required database.
   final AppDatabase database;
 
   @override
   State<AirplaneList> createState() => _AirplaneListState();
 }
-
-class _AirplaneListState extends State<AirplaneList> {
+  /// The state class for AirplaneList responsible for UI rendering and logic.
+  class _AirplaneListState extends State<AirplaneList> {
+    /// Controller for the airplane model input field.
   late TextEditingController _modelController;
+  /// Controller for the maximum passengers input field.
   late TextEditingController _maxPassengersController;
+  /// Controller for the maximum speed input field.
   late TextEditingController _maxSpeedController;
+  /// Controller for the maximum mileage input field.
   late TextEditingController _maxMileageController;
-  List<AirplaneItem> _items = [];// List of airplane items
-  AirplaneItem? selectedItem; // currently selected item for detail view
+  /// List of all airplane items retrieved from the database
+  List<AirplaneItem> _items = [];/// List of airplane items
+  AirplaneItem? selectedItem; /// currently selected item for detail view
 
+  /// Initializes controllers and loads data from database and encrypted preferences.
   @override
   void initState() {
     super.initState();
@@ -71,10 +84,10 @@ class _AirplaneListState extends State<AirplaneList> {
     _maxPassengersController = TextEditingController();
     _maxSpeedController = TextEditingController();
     _maxMileageController = TextEditingController();
-    _loadItems();// load from database
-    _loadLastAirplane(); // load from the shared preferences
+    _loadItems();/// load from database
+    _loadLastAirplane(); /// load from the shared preferences
   }
-// Load items from the database
+   /// Load items from the database
   Future<void> _loadItems() async {
     final items = await widget.database.airplaneItemsDao.findAllItems();
     setState(() {
@@ -83,8 +96,8 @@ class _AirplaneListState extends State<AirplaneList> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Loaded ${items.length} airplanes')));
-  }// Show a snackbar with the number of items loaded
- // Add a new airplane item to the database
+  }/// Show a snackbar with the number of items loaded
+ /// Add a new airplane item to the database
   void _addItem() async {
     final error = _validateInput(); // validation
     if (error != null) {
@@ -106,12 +119,12 @@ class _AirplaneListState extends State<AirplaneList> {
     _maxSpeedController.clear();
     _maxMileageController.clear();
   }
-//Delete an airplane item from the database
+///Delete an airplane item from the database
   void _deleteItem(AirplaneItem item) async {
     await widget.database.airplaneItemsDao.deleteItem(item);
     await _loadItems();
   }
-//clear up the controllers
+///clear up the controllers
   @override
   void dispose() {
     _modelController.dispose();
@@ -120,7 +133,7 @@ class _AirplaneListState extends State<AirplaneList> {
     _maxMileageController.dispose();
     super.dispose();
   }
-//Load last save airplane item from the shared preferences
+///Load last save airplane item from the shared preferences
   Future<void> _loadLastAirplane() async {
     final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
     String? model = await prefs.getString('airplane_model');
@@ -133,7 +146,7 @@ class _AirplaneListState extends State<AirplaneList> {
     if(maxSpeed != null) _maxSpeedController.text = maxSpeed;
     if(maxMileage != null) _maxMileageController.text = maxMileage;
   }
-// Save current airplane item to the shared preferences
+/// Save current airplane item to the shared preferences
   Future<void> _saveToEncryptedSharedPreferences() async {
     final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
     await prefs.setString('airplane_model', _modelController.text);
@@ -141,7 +154,7 @@ class _AirplaneListState extends State<AirplaneList> {
     await prefs.setString('airplane_max_speed', _maxSpeedController.text);
     await prefs.setString('airplane_max_mileage', _maxMileageController.text);
   }
-//Check if the input is valid
+///Validates the input fields and returns an error message if any field is invalid.
   String? _validateInput() {
     if(_modelController.text.isEmpty || _maxPassengersController.text.isEmpty ||
         _maxSpeedController.text.isEmpty || _maxMileageController.text.isEmpty) {
@@ -158,7 +171,7 @@ class _AirplaneListState extends State<AirplaneList> {
     }
     return null;
   }
-//Show confirmation dialog before saving the list
+///Show confirmation dialog before saving the list
   void _showDialog() {
     showDialog(
       context: context,
@@ -185,7 +198,7 @@ class _AirplaneListState extends State<AirplaneList> {
       },
     );
   }
-// Display list of airplane items
+/// Display list of airplane items
   Widget listView() {
     return Expanded(
       child: _items.isEmpty
@@ -212,7 +225,7 @@ class _AirplaneListState extends State<AirplaneList> {
       ),
     );
   }
-//Display detailed view of an airplane item
+///Display detailed view of an airplane item
   Widget detailedPage(AirplaneItem item) {
     return SingleChildScrollView(
       child: Padding(
@@ -261,7 +274,7 @@ class _AirplaneListState extends State<AirplaneList> {
       ),
     );
   }
-// Show update page for an airplane item
+/// Show update page for an airplane item
   Future<void> showUpdatePage(AirplaneItem item) async {
     _modelController.text = item.airplane_model;
     _maxPassengersController.text = item.max_passengers.toString();
@@ -339,7 +352,7 @@ class _AirplaneListState extends State<AirplaneList> {
       },
     );
   }
-// Build the airplane list widget
+/// Build the airplane list widget
   @override
   Widget build(BuildContext context) {
     return Scaffold(
